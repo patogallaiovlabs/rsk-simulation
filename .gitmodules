@@ -1,0 +1,9 @@
+[submodule "repos/rskj"]
+	path = repos/rskj
+	url = https://github.com/patogallaiovlabs/rskj.git
+[submodule "repos/stats-backend"]
+	path = repos/stats-backend
+	url = https://github.com/rsksmart/stats-backend.git
+[submodule "repos/stats-agent"]
+	path = repos/stats-agent
+	url = https://github.com/rsksmart/stats-agent.git

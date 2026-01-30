@@ -1,8 +1,8 @@
 services:
   rskj-miner1:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-miner1
     environment:
       - MINER_ID=1
@@ -21,8 +21,8 @@ services:
 
   rskj-miner2:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-miner2
     environment:
       - MINER_ID=2
@@ -41,8 +41,8 @@ services:
 
   rskj-miner3:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-miner3
     environment:
       - MINER_ID=3
@@ -61,8 +61,8 @@ services:
 
   rskj-miner4:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-miner4
     environment:
       - MINER_ID=4
@@ -81,8 +81,8 @@ services:
 
   rskj-node1:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-node1
     environment:
       - MINER_ID=1
@@ -101,8 +101,8 @@ services:
 
   rskj-node2:
     build:
-      context: ../rskj
-      dockerfile: ../docker-stats/rsk/Dockerfile
+      context: repos/rskj
+      dockerfile: ../../rsk/Dockerfile
     container_name: rskj-node2
     environment:
       - MINER_ID=2

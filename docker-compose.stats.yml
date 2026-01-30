@@ -1,8 +1,8 @@
 services:
   stats-backend:
     build:
-      context: ../stats-backend
-      dockerfile: ../docker-stats/stats-backend/Dockerfile
+      context: repos/stats-backend
+      dockerfile: ../../stats-backend/Dockerfile
     container_name: stats-backend
     ports:
       - "3001:3000"
@@ -12,8 +12,8 @@ services:
 
   stats-agent-miner1:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner1
     environment:
       - NODE_ENV=regtest
@@ -30,8 +30,8 @@ services:
 
   stats-agent-miner2:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner2
     environment:
       - NODE_ENV=regtest
@@ -48,8 +48,8 @@ services:
 
   stats-agent-miner3:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner3
     environment:
       - NODE_ENV=regtest
@@ -66,8 +66,8 @@ services:
 
   stats-agent-miner4:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner4
     environment:
       - NODE_ENV=regtest
@@ -84,8 +84,8 @@ services:
 
   stats-agent-node1:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-node1
     environment:
       - NODE_ENV=regtest
@@ -102,8 +102,8 @@ services:
 
   stats-agent-node2:
     build:
-      context: ../stats-agent
-      dockerfile: ../docker-stats/stats-agent/Dockerfile
+      context: repos/stats-agent
+      dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-node2
     environment:
       - NODE_ENV=regtest
