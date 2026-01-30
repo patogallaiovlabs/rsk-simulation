@@ -1,0 +1,100 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker-json-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker-json-logs
+          __path__: /var/lib/docker/containers/*/*-json.log
+
+    pipeline_stages:
+      # Parse Docker JSON log (extract the "log" field)
+      - json:
+          expressions:
+            log: log
+            time: time
+            stream: stream
+
+      # Only process block lines that contain "processed after:"
+      - match:
+          selector: '{job="docker-json-logs"} |= "processed after:"'
+          stages:
+            # Replace line with the actual log text
+            - output:
+                source: log
+
+            # Extract container id from file path
+            - regex:
+                source: filename
+                expression: '^/var/lib/docker/containers/(?P<container_id>[0-9a-f]{64})/.*-json\.log$'
+            - labels:
+                container_id:
+
+            # Extract difficulty / gasUsed / gasLimit / processed_s
+            - regex:
+                expression: 'difficulty:\[(?P<difficulty>[0-9]+)\].*gasUsed:\s*(?P<gasUsed>[0-9]+),\s*gasLimit:\s*(?P<gasLimit>[0-9]+),\s*processed after:\s*\[(?P<processed_s>[0-9.]+)\]seconds'
+
+            # Export Prometheus metrics
+            - metrics:
+                block_processed_after_seconds:
+                  type: gauge
+                  source: processed_s
+                  config:
+                    action: set
+
+                block_gas_used:
+                  type: gauge
+                  source: gasUsed
+                  config:
+                    action: set
+
+                block_gas_limit:
+                  type: gauge
+                  source: gasLimit
+                  config:
+                    action: set
+
+                block_difficulty:
+                  type: gauge
+                  source: difficulty
+                  config:
+                    action: set
+      # === EVENT 2: datasource flush ===
+      - match:
+          selector: '{job="docker-json-logs"} |= "datasource flush:"'
+          stages:
+            - output:
+                source: log
+
+            # Extract container id from file path
+            - regex:
+                source: filename
+                expression: '^/var/lib/docker/containers/(?P<container_id>[0-9a-f]{64})/.*-json\.log$'
+            - labels:
+                container_id:
+
+            - regex:
+                expression: 'datasource flush:\s*\[(?P<datasource_flush_s>[0-9.]+)\]seconds'
+
+            - metrics:
+                block_datasource_flush_seconds:
+                  type: gauge
+                  source: datasource_flush_s
+                  config:
+                    action: set
+      # Drop everything else (anything that did NOT match above)
+      - match:
+          selector: '{job="docker-json-logs"} !~ "processed after:|datasource flush:"'
+          stages:
+            - drop:
+                expression: '.*'

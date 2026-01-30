@@ -1,0 +1,128 @@
+services:
+  rskj-miner1:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-miner1
+    environment:
+      - MINER_ID=1
+      - IS_MINER=true
+      - ENABLE_JMX=true
+      - JMX_PORT=9101
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50501:50501"
+      - "4444:4444"
+      - "4445:4445"
+      - "9101:9101"
+    volumes:
+      - rskj-data-miner1:/var/lib/rsk
+    restart: unless-stopped
+
+  rskj-miner2:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-miner2
+    environment:
+      - MINER_ID=2
+      - IS_MINER=true
+      - ENABLE_JMX=true
+      - JMX_PORT=9102
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50502:50502"
+      - "4446:4444"
+      - "4447:4445"
+      - "9102:9102"
+    volumes:
+      - rskj-data-miner2:/var/lib/rsk
+    restart: unless-stopped
+
+  rskj-miner3:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-miner3
+    environment:
+      - MINER_ID=3
+      - IS_MINER=true
+      - ENABLE_JMX=true
+      - JMX_PORT=9103
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50503:50503"
+      - "4448:4444"
+      - "4449:4445"
+      - "9103:9103"
+    volumes:
+      - rskj-data-miner3:/var/lib/rsk
+    restart: unless-stopped
+
+  rskj-miner4:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-miner4
+    environment:
+      - MINER_ID=4
+      - IS_MINER=true
+      - ENABLE_JMX=true
+      - JMX_PORT=9104
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50504:50504"
+      - "4450:4444"
+      - "4451:4445"
+      - "9104:9104"
+    volumes:
+      - rskj-data-miner4:/var/lib/rsk
+    restart: unless-stopped
+
+  rskj-node1:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-node1
+    environment:
+      - MINER_ID=1
+      - IS_MINER=false
+      - ENABLE_JMX=true
+      - JMX_PORT=9201
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50601:50601"
+      - "4464:4444"
+      - "4475:4445"
+      - "9201:9201"
+    volumes:
+      - rskj-data-node1:/var/lib/rsk
+    restart: unless-stopped
+
+  rskj-node2:
+    build:
+      context: ../rskj
+      dockerfile: ../docker-stats/rsk/Dockerfile
+    container_name: rskj-node2
+    environment:
+      - MINER_ID=2
+      - IS_MINER=false
+      - ENABLE_JMX=true
+      - JMX_PORT=9202
+      - JMX_HOSTNAME=127.0.0.1
+    ports:
+      - "50602:50602"
+      - "4465:4444"
+      - "4476:4445"
+      - "9202:9202"
+    volumes:
+      - rskj-data-node2:/var/lib/rsk
+    restart: unless-stopped
+
+volumes:
+  rskj-data-miner1:
+  rskj-data-miner2:
+  rskj-data-miner3:
+  rskj-data-miner4:
+  rskj-data-node1:
+  rskj-data-node2:

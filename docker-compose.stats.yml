@@ -1,0 +1,119 @@
+services:
+  stats-backend:
+    build:
+      context: ../stats-backend
+      dockerfile: ../docker-stats/stats-backend/Dockerfile
+    container_name: stats-backend
+    ports:
+      - "3001:3000"
+    environment:
+      - WS_SECRET=eth-net-stats-secret
+    restart: unless-stopped
+
+  stats-agent-miner1:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-miner1
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-miner1
+      - RPC_PORT=4444
+      - LISTENING_PORT=50501
+      - INSTANCE_NAME=rskj-miner1
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped
+
+  stats-agent-miner2:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-miner2
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-miner2
+      - RPC_PORT=4444
+      - LISTENING_PORT=50502
+      - INSTANCE_NAME=rskj-miner2
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped
+
+  stats-agent-miner3:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-miner3
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-miner3
+      - RPC_PORT=4444
+      - LISTENING_PORT=50503
+      - INSTANCE_NAME=rskj-miner3
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped
+
+  stats-agent-miner4:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-miner4
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-miner4
+      - RPC_PORT=4444
+      - LISTENING_PORT=50504
+      - INSTANCE_NAME=rskj-miner4
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped
+
+  stats-agent-node1:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-node1
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-node1
+      - RPC_PORT=4444
+      - LISTENING_PORT=50601
+      - INSTANCE_NAME=rskj-node1
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped
+
+  stats-agent-node2:
+    build:
+      context: ../stats-agent
+      dockerfile: ../docker-stats/stats-agent/Dockerfile
+    container_name: stats-agent-node2
+    environment:
+      - NODE_ENV=regtest
+      - RPC_HOST=rskj-node2
+      - RPC_PORT=4444
+      - LISTENING_PORT=50602
+      - INSTANCE_NAME=rskj-node2
+      - WS_SERVER=ws://stats-backend:3000
+      - WS_SECRET=eth-net-stats-secret
+      - VERBOSITY=2
+    depends_on:
+      - stats-backend
+    restart: unless-stopped

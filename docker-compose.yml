@@ -1,0 +1,4 @@
+include:
+  - docker-compose.tools.yml
+  - docker-compose.rskj.yml
+  - docker-compose.stats.yml
