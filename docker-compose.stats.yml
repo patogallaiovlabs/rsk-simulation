@@ -1,9 +1,13 @@
+name: rsk-stats
+
 services:
   stats-backend:
     build:
       context: repos/stats-backend
       dockerfile: ../../stats-backend/Dockerfile
     container_name: stats-backend
+    networks:
+      - rsk-simulation-net
     ports:
       - "3001:3000"
     environment:
@@ -15,6 +19,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner1
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-miner1
@@ -33,6 +39,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner2
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-miner2
@@ -51,6 +59,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner3
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-miner3
@@ -69,6 +79,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-miner4
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-miner4
@@ -87,6 +99,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-node1
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-node1
@@ -105,6 +119,8 @@ services:
       context: repos/stats-agent
       dockerfile: ../../stats-agent/Dockerfile
     container_name: stats-agent-node2
+    networks:
+      - rsk-simulation-net
     environment:
       - NODE_ENV=regtest
       - RPC_HOST=rskj-node2
@@ -117,3 +133,7 @@ services:
     depends_on:
       - stats-backend
     restart: unless-stopped
+
+networks:
+  rsk-simulation-net:
+    external: true

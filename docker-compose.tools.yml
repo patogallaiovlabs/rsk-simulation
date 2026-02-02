@@ -1,7 +1,11 @@
+name: rsk-tools
+
 services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    networks:
+      - rsk-simulation-net
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -12,10 +16,15 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    networks:
+      - rsk-simulation-net
     ports:
       - "3002:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./grafana-dashboard.json:/etc/grafana/provisioning/dashboards/grafana-dashboard.json:ro
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -23,6 +32,8 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    networks:
+      - rsk-simulation-net
     ports:
       - "8081:8080"
     volumes:
@@ -37,6 +48,8 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    networks:
+      - rsk-simulation-net
     ports:
       - "9300:9100"
     restart: unless-stopped
@@ -44,6 +57,8 @@ services:
   docker-stats-exporter:
     image: wywywywy/docker_stats_exporter:latest
     container_name: docker-stats-exporter
+    networks:
+      - rsk-simulation-net
     ports:
       - "9487:9487"
     volumes:
@@ -53,6 +68,8 @@ services:
   loki:
     image: grafana/loki:2.9.7
     container_name: loki
+    networks:
+      - rsk-simulation-net
     ports:
       - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/config.yml
@@ -64,6 +81,8 @@ services:
   promtail:
     image: grafana/promtail:2.9.7
     container_name: promtail
+    networks:
+      - rsk-simulation-net
     ports:
       - "9080:9080"
     command: -config.file=/etc/promtail/config.yml
@@ -74,6 +93,10 @@ services:
     restart: unless-stopped
     depends_on:
       - loki
+
+networks:
+  rsk-simulation-net:
+    external: true
 
 volumes:
   loki_data:

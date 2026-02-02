@@ -4,26 +4,31 @@ This project provides a unified, modular Docker environment for running RSKj nod
 
 ## Architecture
 
-The environment is split into specialized Docker Compose files:
+The environment is split into specialized Docker Compose projects to allow for visual grouping in your Docker UI:
 
-- **`docker-compose.yml`**: The main entry point that includes all other configurations.
-- **`docker-compose.rskj.yml`**: Manages RSKj nodes (4 miners and 2 regular nodes).
-- **`docker-compose.stats.yml`**: Manages the `stats-backend` and `stats-agent` for each node.
-- **`docker-compose.tools.yml`**: Manages the monitoring stack (Prometheus, Grafana, Loki, etc.).
-
-## Getting Started
-
-### Prerequisites
-
-- Docker and Docker Compose (ver 2.20+ recommended for `include` support)
+- **`docker-compose.tools.yml`**: (`rsk-tools`) Monitoring stack (Prometheus, Grafana, Loki, etc.).
+- **`docker-compose.rskj.yml`**: (`rsk-nodes`) RSKj nodes (4 miners and 2 regular nodes).
+- **`docker-compose.stats.yml`**: (`rsk-stats`) Network stats dashboard and agents.
 
 ### Start the Stack
 
+You have two ways to manage the stack:
+
+#### Option 1: Unified Management (Convenience)
+Groups everything under a single project in Docker.
 ```bash
+docker network create rsk-simulation-net # Only needed once
 docker compose up -d
 ```
 
-This will build the necessary images (RSKj, Stats-Agent, Stats-Backend) and start all containers.
+#### Option 2: Grouped Management (Visual Organization)
+Maintains visual separation in Docker UI (Recommended for monitoring).
+```bash
+docker network create rsk-simulation-net # Only needed once
+docker compose -f docker-compose.tools.yml up -d
+docker compose -f docker-compose.rskj.yml up -d
+docker compose -f docker-compose.stats.yml up -d
+```
 
 ## Accessing Dashboards
 
@@ -54,3 +59,10 @@ Ports follow a stable scheme:
 - **Prometheus**: Scrapes metrics from `cadvisor`, `node-exporter`, and custom metrics parsed from logs.
 - **Loki & Promtail**: Collects logs from all containers. Promtail is configured to extract block metrics from RSKj logs.
 - **cAdvisor**: Provides container resource usage metrics.
+
+## Grafana Dashboard
+
+- **Grafana**: [http://localhost:3002](http://localhost:3002)
+- **Dashboard**: [grafana-dashboard.json](grafana-dashboard.json)
+- **Data Source**: [prometheus](http://host.docker.internal:9091)
+- **Data Source**: [loki](http://host.docker.internal:3100)

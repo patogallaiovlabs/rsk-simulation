@@ -35,8 +35,9 @@ ENV JMX_HOSTNAME="127.0.0.1"
 
 ENV MINER_ID="1"
 ENV IS_MINER="true"
+ENV WIRE_DELAY="100"
 ENV DEFAULT_JVM_OPTS="-Xms3G"
-ENV RSKJ_SYS_PROPS="-Drsk.conf.file=./test/node-timedMine.conf -DtxLoad.profile=cpu -DtxLoad.enabled=false -Dwire.simulatedDelay=100 -Drsk.conf.file=./test/node-timedMine.conf -Drpc.providers.web.cors=* -Drpc.providers.web.http.port=4444 -Drpc.providers.web.http.enabled=true -Drpc.providers.web.ws.enabled=true -Drpc.providers.web.ws.port=4445 -Ddatabase.dir=./test/local-regtest/database -Dtransaction.accountTxRateLimit.enabled=false -Dlogging.dir=test/local-regtest/ -Dsync.peer.count=20 -Drpc.providers.web.http.bind_address=0.0.0.0 -Drpc.providers.web.http.hosts.0=localhost -Drpc.providers.web.http.hosts.1=127.0.0.1 -Drpc.providers.web.http.hosts.2=::1"
+ENV RSKJ_SYS_PROPS="-Drsk.conf.file=./test/node-timedMine.conf -DtxLoad.profile=cpu -DtxLoad.enabled=false -Drsk.conf.file=./test/node-timedMine.conf -Drpc.providers.web.cors=* -Drpc.providers.web.http.port=4444 -Drpc.providers.web.http.enabled=true -Drpc.providers.web.ws.enabled=true -Drpc.providers.web.ws.port=4445 -Ddatabase.dir=./test/local-regtest/database -Dtransaction.accountTxRateLimit.enabled=false -Dlogging.dir=test/local-regtest/ -Dsync.peer.count=20 -Drpc.providers.web.http.bind_address=0.0.0.0 -Drpc.providers.web.http.hosts.0=localhost -Drpc.providers.web.http.hosts.1=127.0.0.1 -Drpc.providers.web.http.hosts.2=::1"
 ENV RSKJ_LOG_PROPS="-Dlogging.stdout=TRACE -Dlogging.file=TRACE -Dlogging=TRACE" 
 ENV RSKJ_CLASS=co.rsk.Start
 ENV RSKJ_OPTS="--regtest"
@@ -71,6 +72,7 @@ ENTRYPOINT ["/bin/sh", "-c", "\
   -Dminer.server.skipPowValidation=true \
   -Drpc.providers.web.http.hosts.3=rskj-miner${MINER_ID} \
   -Drpc.providers.web.http.hosts.4=rskj-node${MINER_ID} \
+  -Dwire.simulatedDelay=${WIRE_DELAY} \
   $JMX_OPTS \
   $RSKJ_LOG_PROPS \
   -cp rsk.jar $RSKJ_CLASS $RSKJ_OPTS \"${@}\" \
