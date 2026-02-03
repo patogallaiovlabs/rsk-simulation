@@ -41,6 +41,9 @@ ENV RSKJ_SYS_PROPS="-Drsk.conf.file=./test/node-timedMine.conf -DtxLoad.profile=
 ENV RSKJ_LOG_PROPS="-Dlogging.stdout=TRACE -Dlogging.file=TRACE -Dlogging=TRACE" 
 ENV RSKJ_CLASS=co.rsk.Start
 ENV RSKJ_OPTS="--regtest"
+ENV BLOCK_GAS_LIMIT="10000000"
+ENV GENESIS_FILE=""
+
 
 ENTRYPOINT ["/bin/sh", "-c", "\
   JMX_OPTS=''; \
@@ -67,12 +70,21 @@ ENTRYPOINT ["/bin/sh", "-c", "\
   -Dpeer.port=5060${MINER_ID} \
   -Dminer.client.timedMine=false\"; \
   fi; \
+  GENESIS_OPT=''; \
+  if [ -n \"${GENESIS_FILE}\" ]; then \
+  GENESIS_OPT=\"-Dgenesis=${GENESIS_FILE}\"; \
+  fi; \
   exec java $DEFAULT_JVM_OPTS $RSKJ_SYS_PROPS \
   $MINER_OPTS \
   -Dminer.server.skipPowValidation=true \
   -Drpc.providers.web.http.hosts.3=rskj-miner${MINER_ID} \
   -Drpc.providers.web.http.hosts.4=rskj-node${MINER_ID} \
   -Dwire.simulatedDelay=${WIRE_DELAY} \
+  -DtxLoad.blockTargetGas=${BLOCK_GAS_LIMIT} \
+  -DtxLoad.primaryTxGas=${BLOCK_GAS_LIMIT} \
+  -Drpc.gasEstimationCap=${BLOCK_GAS_LIMIT} \
+  -Dtargetgaslimit=${BLOCK_GAS_LIMIT} \
+  $GENESIS_OPT \
   $JMX_OPTS \
   $RSKJ_LOG_PROPS \
   -cp rsk.jar $RSKJ_CLASS $RSKJ_OPTS \"${@}\" \

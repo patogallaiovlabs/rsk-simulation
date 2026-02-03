@@ -15,6 +15,8 @@ services:
       - JMX_PORT=9101
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=500
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50501:50501"
       - "4444:4444"
@@ -22,6 +24,7 @@ services:
       - "9101:9101"
     volumes:
       - rskj-data-miner1:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-miner1"
     restart: unless-stopped
@@ -40,6 +43,8 @@ services:
       - JMX_PORT=9102
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=400
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50502:50502"
       - "4446:4444"
@@ -47,6 +52,7 @@ services:
       - "9102:9102"
     volumes:
       - rskj-data-miner2:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-miner2"
     restart: unless-stopped
@@ -65,6 +71,8 @@ services:
       - JMX_PORT=9103
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=300
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50503:50503"
       - "4448:4444"
@@ -72,6 +80,7 @@ services:
       - "9103:9103"
     volumes:
       - rskj-data-miner3:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-miner3"
     restart: unless-stopped
@@ -90,6 +99,8 @@ services:
       - JMX_PORT=9104
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=200
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50504:50504"
       - "4450:4444"
@@ -97,6 +108,7 @@ services:
       - "9104:9104"
     volumes:
       - rskj-data-miner4:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-miner4"
     restart: unless-stopped
@@ -115,6 +127,8 @@ services:
       - JMX_PORT=9201
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=500
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50601:50601"
       - "4464:4444"
@@ -122,6 +136,7 @@ services:
       - "9201:9201"
     volumes:
       - rskj-data-node1:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-node1"
     restart: unless-stopped
@@ -140,6 +155,8 @@ services:
       - JMX_PORT=9202
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=500
+      - BLOCK_GAS_LIMIT=${BLOCK_GAS_LIMIT:-10000000}
+      - GENESIS_FILE=/var/lib/rsk/genesis.json
     ports:
       - "50602:50602"
       - "4465:4444"
@@ -147,6 +164,7 @@ services:
       - "9202:9202"
     volumes:
       - rskj-data-node2:/var/lib/rsk
+      - ./rsk/genesis_7M.json:/var/lib/rsk/genesis.json
     labels:
       simulation.id: "rskj-node2"
     restart: unless-stopped
