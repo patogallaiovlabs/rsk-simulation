@@ -10,6 +10,32 @@ The environment is split into specialized Docker Compose projects to allow for v
 - **`docker-compose.rskj.yml`**: (`rsk-nodes`) RSKj nodes (4 miners and 2 regular nodes).
 - **`docker-compose.stats.yml`**: (`rsk-stats`) Network stats dashboard and agents.
 
+## Submodules Management
+
+This project uses Git submodules to include the necessary repositories for RSKj and K6 tests.
+
+### Initialize and Update Submodules
+
+If you have just cloned the repository or need to initialize the submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+### Pull Latest Updates
+
+To pull the latest changes for all submodules from their respective remote branches:
+
+```bash
+git submodule update --remote --merge
+```
+
+### Pull Main Repo with Submodules
+
+```bash
+git pull --recurse-submodules
+```
+
 ### Start the Stack
 
 You have two ways to manage the stack:

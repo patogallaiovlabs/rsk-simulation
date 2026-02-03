@@ -1,6 +1,6 @@
 [submodule "repos/rskj"]
 	path = repos/rskj
-	url = https://github.com/patogallaiovlabs/rskj.git
+	url = git@github.com:patogallaiovlabs/rskj.git
 	branch = rats-blocksize-stress
 [submodule "repos/stats-backend"]
 	path = repos/stats-backend
