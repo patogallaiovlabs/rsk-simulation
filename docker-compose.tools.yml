@@ -66,7 +66,7 @@ services:
     restart: unless-stopped
 
   loki:
-    image: grafana/loki:2.9.7
+    image: grafana/loki:3.0.0
     container_name: loki
     networks:
       - rsk-simulation-net
@@ -79,10 +79,12 @@ services:
     restart: unless-stopped
 
   promtail:
-    image: grafana/promtail:2.9.7
+    image: grafana/promtail:3.0.0
     container_name: promtail
     networks:
       - rsk-simulation-net
+    environment:
+      - DOCKER_API_VERSION=1.44
     ports:
       - "9080:9080"
     command: -config.file=/etc/promtail/config.yml
