@@ -87,6 +87,48 @@ Each node exposes RPC ports on the host:
 - **Node 1**: HTTP 4464, WS 4475
 - **Node 2**: HTTP 4465, WS 4476
 
+## Advanced Configuration
+
+You can customize the simulation behavior by tweaking environment variables and configuration files.
+
+### 1. Block Gas Limit
+The block gas limit can be adjusted using the `BLOCK_GAS_LIMIT` environment variable in `docker-compose.rskj.yml`. 
+
+> [!IMPORTANT]
+> To ensure the network operates correctly, the `BLOCK_GAS_LIMIT` environment variable must align with the `gasLimit` defined in the genesis block file.
+
+**Example: Setting a 25M Gas Limit**
+1. Update `docker-compose.rskj.yml`:
+   ```yaml
+   environment:
+     - BLOCK_GAS_LIMIT=25000000
+   ```
+2. Ensure you are using a matching genesis file (e.g., `genesis_25M.json`).
+3. Apply changes (see below).
+
+### 2. Custom Genesis Files
+The network uses different genesis files to simulate various scenarios. You can swap them by updating the volume mount in `docker-compose.rskj.yml`:
+```yaml
+volumes:
+  - ./rsk/genesis_25M.json:/var/lib/rsk/genesis.json
+```
+
+### 3. Network Latency (`WIRE_DELAY`)
+Each RSKj node can have a simulated network delay (in milliseconds) using the `WIRE_DELAY` environment variable. This simulates the time it takes for messages to travel between nodes.
+```yaml
+environment:
+  - WIRE_DELAY=500 # 500ms delay
+```
+
+### 4. Resource Constraints
+Each node is limited to **1 CPU** and **4GB RAM** by default in `docker-compose.rskj.yml`. You can adjust these in the `deploy.resources.limits` section of each service.
+
+### Applying Changes
+Whenever you modify the Docker Compose files or environment variables, you must recreate the containers to apply the changes:
+```bash
+docker compose -f docker-compose.rskj.yml up -d --force-recreate
+```
+
 ## Troubleshooting
 
 ### Docker Image Pull Issues (GCloud auth)

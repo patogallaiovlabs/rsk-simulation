@@ -28,6 +28,11 @@ services:
     labels:
       simulation.id: "rskj-miner1"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
   rskj-miner2:
     build:
@@ -56,6 +61,11 @@ services:
     labels:
       simulation.id: "rskj-miner2"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
   rskj-miner3:
     build:
@@ -84,6 +94,11 @@ services:
     labels:
       simulation.id: "rskj-miner3"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
   rskj-miner4:
     build:
@@ -112,6 +127,11 @@ services:
     labels:
       simulation.id: "rskj-miner4"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
   rskj-node1:
     build:
@@ -140,6 +160,11 @@ services:
     labels:
       simulation.id: "rskj-node1"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
   rskj-node2:
     build:
@@ -168,6 +193,11 @@ services:
     labels:
       simulation.id: "rskj-node2"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 4G
 
 networks:
   rsk-simulation-net:
