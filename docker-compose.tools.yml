@@ -7,7 +7,7 @@ services:
     networks:
       - rsk-simulation-net
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     ports:
       - "9091:9090"
@@ -22,9 +22,9 @@ services:
       - "3002:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      - ./grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
-      - ./grafana-dashboard.json:/etc/grafana/provisioning/dashboards/grafana-dashboard.json:ro
+      - ./grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./grafana/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./grafana/grafana-dashboard.json:/etc/grafana/provisioning/dashboards/grafana-dashboard.json:ro
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -74,7 +74,7 @@ services:
       - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/config.yml
     volumes:
-      - ./loki-config.yml:/etc/loki/config.yml:ro
+      - ./grafana/loki-config.yml:/etc/loki/config.yml:ro
       - loki_data:/loki
     restart: unless-stopped
 
@@ -89,7 +89,7 @@ services:
       - "9080:9080"
     command: -config.file=/etc/promtail/config.yml
     volumes:
-      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./grafana/promtail-config.yml:/etc/promtail/config.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped

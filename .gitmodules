@@ -4,10 +4,10 @@
 	branch = rats-blocksize-stress
 [submodule "repos/stats-backend"]
 	path = repos/stats-backend
-	url = https://github.com/rsksmart/stats-backend.git
+	url = git@github.com:patogallaiovlabs/stats-backend.git
 [submodule "repos/stats-agent"]
 	path = repos/stats-agent
-	url = https://github.com/rsksmart/stats-agent.git
+	url = git@github.com:patogallaiovlabs/stats-agent.git
 [submodule "repos/rskj-k6-tests"]
 	path = repos/rskj-k6-tests
 	url = git@github.com:patogallaiovlabs/rskj-k6-tests.git

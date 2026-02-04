@@ -89,6 +89,6 @@ Ports follow a stable scheme:
 ## Grafana Dashboard
 
 - **Grafana**: [http://localhost:3002](http://localhost:3002)
-- **Dashboard**: [grafana-dashboard.json](grafana-dashboard.json)
+- **Dashboard**: [grafana-dashboard.json](grafana/grafana-dashboard.json)
 - **Data Source**: [prometheus](http://host.docker.internal:9091)
 - **Data Source**: [loki](http://host.docker.internal:3100)
