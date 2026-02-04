@@ -1,94 +1,117 @@
-# RSK Consolidated Stack
+# RSK Simulation Environment
 
-This project provides a unified, modular Docker environment for running RSKj nodes, stats monitoring, and infrastructure visibility tools.
+This project aims to simulate a local network of RSK miners and nodes running in Docker containers. It provides a modular environment to run stress tests, monitor network performance, and analyze hardware resource usage.
+
+The simulation includes:
+- A network of RSKj nodes (Miners and Regular Nodes).
+- A suite of monitoring tools (Grafana, Prometheus, Loki).
+- A network statistics dashboard (Stats Backend and Agent).
+- Integration with a [k6 test suite](https://github.com/rsksmart/rskj-k6-tests) for stress testing the network.
 
 ## Architecture
 
-The environment is split into specialized Docker Compose projects to allow for visual grouping in your Docker UI:
+The project follows a modular architecture, allowing you to run different components independently:
 
-- **`docker-compose.tools.yml`**: (`rsk-tools`) Monitoring stack (Prometheus, Grafana, Loki, etc.).
-- **`docker-compose.rskj.yml`**: (`rsk-nodes`) RSKj nodes (4 miners and 2 regular nodes).
-- **`docker-compose.stats.yml`**: (`rsk-stats`) Network stats dashboard and agents.
+- **RSK Network (`docker-compose.rskj.yml`)**: The core of the simulation, consisting of 4 miners and 2 regular nodes.
+- **Monitoring Stack (`docker-compose.tools.yml`)**: Infrastructure visibility using Prometheus (metrics), Loki (logs), and Grafana (dashboards). It provides metrics for both hardware usage and node performance (e.g., block processing time).
+- **Stats Dashboard (`docker-compose.stats.yml`)**: Real-time network status visualization using the RSK Stats dashboard and agents.
 
-## Submodules Management
+## Setup
 
-This project uses Git submodules to include the necessary repositories for RSKj and K6 tests.
-
-### Initialize and Update Submodules
-
-If you have just cloned the repository or need to initialize the submodules:
-
+### 1. Initialize Submodules
+This project uses Git submodules for RSKj and the k6 test suite.
 ```bash
 git submodule update --init --recursive
 ```
 
-### Pull Latest Updates
-
-To pull the latest changes for all submodules from their respective remote branches:
-
+### 2. Stats Dashboard Setup
+If you plan to run the stats dashboard, initialize the dependencies for the backend and agent:
 ```bash
-git submodule update --remote --merge
+# Stats Backend
+cd repos/stats-backend && npm install && cd ../..
+
+# Stats Agent
+cd repos/stats-agent && npm install && cd ../..
 ```
 
-### Pull Main Repo with Submodules
-
+### 3. K6 Stress Tests Setup
+To run the stress tests, ensure you have [k6](https://k6.io/docs/getting-started/installation/) installed on your system, then install the project dependencies:
 ```bash
-git pull --recurse-submodules
+cd repos/rskj-k6-tests && npm install && cd ../..
 ```
 
-### Start the Stack
+## Getting Started
 
-You have two ways to manage the stack:
-
-#### Option 1: Unified Management (Convenience)
-Groups everything under a single project in Docker.
+First, ensure the shared network exists:
 ```bash
-docker network create rsk-simulation-net # Only needed once
-docker compose up -d
+docker network create rsk-simulation-net 2>/dev/null || true
 ```
 
-#### Option 2: Grouped Management (Visual Organization)
-Maintains visual separation in Docker UI (Recommended for monitoring).
+### Start the RSK Network
 ```bash
-docker network create rsk-simulation-net # Only needed once
-docker compose -f docker-compose.tools.yml up -d
 docker compose -f docker-compose.rskj.yml up -d
+```
+
+### Start Optional Tools (Recommended)
+```bash
+# Monitoring Stack (Grafana at http://localhost:3002)
+docker compose -f docker-compose.tools.yml up -d
+
+# Stats Dashboard (Backend at http://localhost:3001)
 docker compose -f docker-compose.stats.yml up -d
 ```
 
-## Accessing Dashboards
+## Stress Testing
 
-- **Grafana**: [http://localhost:3002](http://localhost:3002)
-  - Pre-configured with dashboards for Docker and system monitoring.
-- **Stats Backend**: [http://localhost:3001](http://localhost:3001)
-  - Real-time visualization of the RSK network status.
+You can run various stress test scenarios using the k6 suite located in `repos/rskj-k6-tests`.
 
-## Interacting with RSKj Nodes
+### Example: Running Keccak Random Writes
+```bash
+cd repos/rskj-k6-tests
+npm run test:regtest:keccak-random-writes
+```
 
-Each node exposes RPC (HTTP/WS) and JMX ports on the host.
+## Performance Monitoring
 
-### Miner 1 (Default)
-- **HTTP RPC**: `http://localhost:4444`
-- **WS RPC**: `ws://localhost:4445`
-- **JMX**: `localhost:9101`
+- **Grafana**: Access [http://localhost:3002](http://localhost:3002) to view dashboards.
+- **Node Metrics**: Includes block processing time, gas consumption, and difficulty.
+- **Hardware Metrics**: CPU, memory, Disk I/O, and network traffic per container.
 
-### Other Miners & Nodes
-Ports follow a stable scheme:
-- **Miner 2**: HTTP 4446, WS 4447, JMX 9102
-- **Miner 3**: HTTP 4448, WS 4449, JMX 9103
-- **Miner 4**: HTTP 4450, WS 4451, JMX 9104
-- **Node 1**: HTTP 4464, WS 4475, JMX 9201
-- **Node 2**: HTTP 4465, WS 4476, JMX 9202
+## Interacting with Nodes
 
-## Monitoring & Logs
+Each node exposes RPC ports on the host:
+- **Miner 1**: HTTP 4444, WS 4445
+- **Miner 2**: HTTP 4446, WS 4447
+- **Miner 3**: HTTP 4448, WS 4449
+- **Miner 4**: HTTP 4450, WS 4451
+- **Node 1**: HTTP 4464, WS 4475
+- **Node 2**: HTTP 4465, WS 4476
 
-- **Prometheus**: Scrapes metrics from `cadvisor`, `node-exporter`, and custom metrics parsed from logs.
-- **Loki & Promtail**: Collects logs from all containers. Promtail is configured to extract block metrics from RSKj logs.
-- **cAdvisor**: Provides container resource usage metrics.
+## Troubleshooting
 
-## Grafana Dashboard
+### Docker Image Pull Issues (GCloud auth)
+If `docker compose` fails to pull images because it tries to use `gcloud` as a credential helper, you may need to reset your Docker configuration.
+The project includes a clean `config.json` in the `./docker/` directory.
+```bash
+cp ./docker/config.json ~/.docker/config.json
+```
 
-- **Grafana**: [http://localhost:3002](http://localhost:3002)
-- **Dashboard**: [grafana-dashboard.json](grafana/grafana-dashboard.json)
-- **Data Source**: [prometheus](http://host.docker.internal:9091)
-- **Data Source**: [loki](http://host.docker.internal:3100)
+### Port Conflicts
+If you get "bind: address already in use" errors, ensure no other services are running on the following ports:
+- **3000-3002**: Grafana, Stats Backend.
+- **9090-9091**: Prometheus.
+- **3100**: Loki.
+- **4444-4451**: RSKj RPC ports.
+
+### Containers Cannot Communicate
+Ensure the shared network exists:
+```bash
+docker network ls | grep rsk-simulation-net
+```
+If not found, create it: `docker network create rsk-simulation-net`.
+
+### Logs Not Showing in Grafana
+If logs are missing in Grafana/Loki, check the Promtail container logs. This is often due to Docker API version mismatches or Loki rate limiting.
+```bash
+docker compose -f docker-compose.tools.yml logs -f promtail
+```
