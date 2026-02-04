@@ -21,10 +21,8 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - grafana_data:/var/lib/grafana
+      - ./grafana/data:/var/lib/grafana
       - ./grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      - ./grafana/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
-      - ./grafana/grafana-dashboard.json:/etc/grafana/provisioning/dashboards/grafana-dashboard.json:ro
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -103,4 +101,3 @@ networks:
 volumes:
   loki_data:
   prometheus_data:
-  grafana_data:
