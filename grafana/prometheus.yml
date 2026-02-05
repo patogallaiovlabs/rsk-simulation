@@ -21,3 +21,24 @@ scrape_configs:
   - job_name: "promtail"
     static_configs:
       - targets: ["host.docker.internal:9080"]
+
+  - job_name: "rskj-jvm"
+    static_configs:
+      - targets: ["rskj-miner1:8080"]
+        labels:
+          name: "rskj-miner1"
+      - targets: ["rskj-miner2:8080"]
+        labels:
+          name: "rskj-miner2"
+      - targets: ["rskj-miner3:8080"]
+        labels:
+          name: "rskj-miner3"
+      - targets: ["rskj-miner4:8080"]
+        labels:
+          name: "rskj-miner4"
+      - targets: ["rskj-node1:8080"]
+        labels:
+          name: "rskj-node1"
+      - targets: ["rskj-node2:8080"]
+        labels:
+          name: "rskj-node2"

@@ -123,6 +123,22 @@ environment:
 ### 4. Resource Constraints
 Each node is limited to **1 CPU** and **4GB RAM** by default in `docker-compose.rskj.yml`. You can adjust these in the `deploy.resources.limits` section of each service.
 
+### 5. Blockchain Flush Interval (`FLUSH_BLOCKS`)
+You can control how often the blockchain state is flushed to disk (in number of blocks) using the `FLUSH_BLOCKS` environment variable. The default is **100**.
+```yaml
+environment:
+  - FLUSH_BLOCKS=50
+```
+
+### 6. Disable JMX Metrics Scraping
+By default, Prometheus scrapes JMX metrics (JVM memory, GC, etc.) from all RSKj nodes. If you want to disable this to save resources or simplify the monitoring:
+1. Stop the monitoring stack: `docker compose -f docker-compose.tools.yml down`
+2. Start without JMX: 
+   ```bash
+   PROMETHEUS_CONFIG=grafana/prometheus-no-jvm.yml docker compose -f docker-compose.tools.yml up -d
+   ```
+To re-enable JMX, simply start without the environment variable.
+
 ### Applying Changes
 Whenever you modify the Docker Compose files or environment variables, you must recreate the containers to apply the changes:
 ```bash

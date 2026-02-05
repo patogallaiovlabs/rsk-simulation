@@ -7,7 +7,7 @@ services:
     networks:
       - rsk-simulation-net
     volumes:
-      - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./${PROMETHEUS_CONFIG:-grafana/prometheus.yml}:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     ports:
       - "9091:9090"

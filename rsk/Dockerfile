@@ -7,7 +7,7 @@ RUN useradd -ms /bin/bash rsk
 USER rsk
 
 WORKDIR /home/rsk
-COPY --chown=rsk:rsk . ./
+COPY --chown=rsk:rsk repos/rskj ./
 
 RUN curl -sL https://secchannel.rsk.co/SUPPORT.asc | gpg --import && \
   gpg --verify --output SHA256SUMS SHA256SUMS.asc && \
@@ -23,11 +23,20 @@ FROM eclipse-temurin:17-jre@sha256:38e0afc86a10bf4cadbf1586fb617b3a9a4d09c9a0be8
 LABEL org.opencontainers.image.authors="ops@rootstocklabs.com"
 
 RUN useradd -ms /sbin/nologin -d /var/lib/rsk rsk
-USER rsk
 
+# Use a separate directory for JMX to avoid volume mount overrides
+RUN mkdir -p /usr/local/lib/rsk && chown rsk:rsk /usr/local/lib/rsk
+
+USER rsk
 WORKDIR /var/lib/rsk
 COPY --from=build --chown=rsk:rsk /home/rsk/rsk.jar ./
 COPY --from=build --chown=rsk:rsk /home/rsk/test/node-timedMine.conf /var/lib/rsk/test/node-timedMine.conf
+
+WORKDIR /usr/local/lib/rsk
+COPY --chown=rsk:rsk rsk/jmx_prometheus_javaagent.jar ./
+COPY --chown=rsk:rsk rsk/jmx_exporter_config.yaml ./
+
+WORKDIR /var/lib/rsk
 
 ENV ENABLE_JMX="false"
 ENV JMX_PORT="9010"
@@ -74,7 +83,9 @@ ENTRYPOINT ["/bin/sh", "-c", "\
   if [ -n \"${GENESIS_FILE}\" ]; then \
   GENESIS_OPT=\"-Dgenesis=${GENESIS_FILE}\"; \
   fi; \
-  exec java $DEFAULT_JVM_OPTS $RSKJ_SYS_PROPS \
+  exec java $DEFAULT_JVM_OPTS \
+  -javaagent:/usr/local/lib/rsk/jmx_prometheus_javaagent.jar=8080:/usr/local/lib/rsk/jmx_exporter_config.yaml \
+  $RSKJ_SYS_PROPS \
   $MINER_OPTS \
   -Dminer.server.skipPowValidation=true \
   -Drpc.providers.web.http.hosts.3=rskj-miner${MINER_ID} \
@@ -84,6 +95,8 @@ ENTRYPOINT ["/bin/sh", "-c", "\
   -DtxLoad.primaryTxGas=${BLOCK_GAS_LIMIT} \
   -Drpc.gasEstimationCap=${BLOCK_GAS_LIMIT} \
   -Dtargetgaslimit=${BLOCK_GAS_LIMIT} \
+  -Dsystem.profiling.enabled=true \
+  -Dblockchain.flushNumberOfBlocks=${FLUSH_BLOCKS} \
   $GENESIS_OPT \
   $JMX_OPTS \
   $RSKJ_LOG_PROPS \
