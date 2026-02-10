@@ -50,7 +50,7 @@ ENV RSKJ_SYS_PROPS="-Drsk.conf.file=./test/node-timedMine.conf -DtxLoad.profile=
 ENV RSKJ_LOG_PROPS="-Dlogging.stdout=TRACE -Dlogging.file=TRACE -Dlogging=TRACE" 
 ENV RSKJ_CLASS=co.rsk.Start
 ENV RSKJ_OPTS="--regtest"
-ENV BLOCK_GAS_LIMIT="10000000"
+ENV BLOCK_GAS_LIMIT="7000000"
 ENV GENESIS_FILE=""
 
 
