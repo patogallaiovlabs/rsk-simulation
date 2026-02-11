@@ -8,7 +8,8 @@ Automated tool to export all panel data from a Grafana dashboard to CSV files, e
 - **Flexible Time Ranges**: Specify custom time ranges for data export
 - **Variable Support**: Apply dashboard variables (e.g., select specific containers)
 - **CSV Format**: Data exported in the same "joined by field" format as Grafana's UI export
-- **Batch Processing**: Process dozens of panels in seconds
+- **Automated Analysis**: Automatically generates quantitative reports and dashboards after export.
+- **Dual Report Modes**: Generates "Standard" (key metrics) and "Complete" (unfiltered) report versions.
 
 ## Prerequisites
 
@@ -63,27 +64,22 @@ cp config.example.json config.json
 
 ## Usage
 
-### Basic Export
+### Basic Export & Analysis
 
-Export all panels using the default time range (last 6 hours):
+Export all panels and generate reports using the default time range (last 6 hours):
 
 ```bash
-python export_panels.py
+python3 export_panels.py
 ```
 
 ### Custom Time Range
 
-Export data for a specific time range:
+Export data and generate analysis for a specific time range:
 
 ```bash
-# Last 24 hours
-python export_panels.py --from now-24h --to now
-
-# Specific date range (ISO format)
-python export_panels.py --from 2026-02-10T00:00:00Z --to 2026-02-11T00:00:00Z
-
-# Last 4 hours
-python export_panels.py --from now-4h --to now
+# ISO format or relative
+python3 export_panels.py --from 2026-02-10T00:00:00Z --to 2026-02-11T00:00:00Z
+python3 export_panels.py --from now-4h --to now
 ```
 
 ### With Variables
@@ -98,27 +94,28 @@ python export_panels.py --var container=rskj-miner2
 python export_panels.py --var container=rskj-miner2 --var interval=1m
 ```
 
-### Complete Example
+### Specific Example (Used in Simulation)
 
 ```bash
-python export_panels.py \
-  --from 2026-02-10T12:00:00Z \
-  --to 2026-02-11T16:00:00Z \
-  --var container=rskj-miner2 \
-  --var interval=30s
+python3 export_panels.py \
+  --from 2026-02-10T21:18:00.998Z \
+  --to 2026-02-11T18:29:12.769Z
 ```
 
-## Output
+## Output Structure
 
-The script will create CSV files in the specified output directory, with filenames matching Grafana's export format:
+The tool organizes results into the following structure:
 
 ```
 results/grafana_exports/
-├── Block_Processing_Time-data-as-joinbyfield-2026-02-11 15_43_30.csv
-├── CPU_Usage_per_Container-data-as-joinbyfield-2026-02-11 15_43_30.csv
-├── Gas_Consumption-data-as-joinbyfield-2026-02-11 15_43_30.csv
-├── JVM_Heap_Memory_Usage-data-as-joinbyfield-2026-02-11 15_43_30.csv
-└── ...
+├── README.md                           # Master index with links to all reports
+├── [Metric]-data-[Timestamp].csv      # Raw CSV data files
+├── reports/                            # Standard reports (Key metrics, fixed 0-1s plots)
+│   ├── [node]_performance_report.md
+│   └── [node]_performance_dashboard.png
+└── reports_complete/                   # Complete reports (All metrics, dynamic plots)
+    ├── [node]_performance_report_complete.md
+    └── [node]_performance_dashboard_complete.png
 ```
 
 Each CSV file contains:
@@ -153,25 +150,21 @@ Library panels require additional API calls. For now, these are skipped. You can
 
 ### Programmatic Use
 
-You can also use the exporter as a Python module:
-
 ```python
 from export_panels import GrafanaExporter
 
 exporter = GrafanaExporter(
-    grafana_url='http://localhost:3000',
+    grafana_url='http://localhost:3002',
     api_key='your-api-key',
     dashboard_uid='mydash',
     output_dir='./exports'
 )
 
+# This will only export the CSVs
 files = exporter.export_all_panels(
     time_from='now-6h',
-    time_to='now',
-    variables={'container': 'rskj-miner2'}
+    time_to='now'
 )
-
-print(f"Exported {len(files)} files")
 ```
 
 ## Tips
@@ -179,14 +172,7 @@ print(f"Exported {len(files)} files")
 1. **Automate with cron**: Schedule regular exports
    ```bash
    # Export every 6 hours
-   0 */6 * * * cd /path/to/grafana/exporter && python export_panels.py --from now-6h --to now
+   0 */6 * * * cd /path/to/grafana/exporter && python3 export_panels.py --from now-6h --to now
    ```
 
-2. **Export multiple scenarios**: Create different config files
-   ```bash
-   python export_panels.py --config config_7M.json
-   python export_panels.py --config config_10M.json
-   python export_panels.py --config config_17M.json
-   ```
-
-3. **Combine with analysis scripts**: Chain the exporter with your data processing pipeline
+2. **Combine with analysis**: The script automatically calls `generate_readme.py` to create your reports!

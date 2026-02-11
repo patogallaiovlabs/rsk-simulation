@@ -77,6 +77,16 @@ npm run test:regtest:keccak-random-writes
 - **Node Metrics**: Includes block processing time, gas consumption, and difficulty.
 - **Hardware Metrics**: CPU, memory, Disk I/O, and network traffic per container.
 
+## Automated Export & Analysis
+
+The project includes a tool to automate the export of Grafana panel data and generate quantitative performance reports.
+
+- **Location**: `grafana/exporter/`
+- **Features**: One-command export of all panels and generation of per-miner markdown reports and performance dashboards.
+- **Dual Reports**: Generates both "Standard" (key metrics) and "Complete" (unfiltered data) report sets.
+
+See the [Exporter Documentation](grafana/exporter/README.md) for detailed usage instructions.
+
 ## Interacting with Nodes
 
 Each node exposes RPC ports on the host:

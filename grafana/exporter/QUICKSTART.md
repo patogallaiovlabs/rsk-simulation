@@ -18,48 +18,27 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Step 3: Run the Export
+## Step 3: Run Full Export & Analysis
 
-For your specific dashboard with the exact time range from the URL:
-
-```bash
-python3 export_panels.py \
-  --from 2026-02-10T21:18:00.998Z \
-  --to 2026-02-11T18:29:12.769Z
-```
-
-This will export all panels with data from that exact time range.
-
-### Alternative: Export with relative time
-
-If you want to export the last 24 hours of data:
+To export all panels and generate quantitative reports in one command:
 
 ```bash
-python3 export_panels.py --from now-24h --to now
+python3 export_panels.py --from now-4h --to now
 ```
 
-## Output
+## Output Structure
 
-CSV files will be saved to: `../../results/grafana_exports/`
+Results are saved to `../../results/grafana_exports/`:
 
-Each file will be named like:
-- `Block_Processing_Time-data-as-joinbyfield-2026-02-11 15_50_13.csv`
-- `CPU_Usage_per_Container-data-as-joinbyfield-2026-02-11 15_50_13.csv`
-- etc.
+- **`README.md`**: Start here! It contains links to all reports.
+- **`reports/`**: Standard reports with key metrics and standardized plots.
+- **`reports_complete/`**: Complete reports with all metrics and dynamic plots.
+- **`*.csv`**: Raw data files for your own custom analysis.
 
 ## Troubleshooting
 
-### "No module named 'requests'"
-
-Install dependencies:
-```bash
-pip3 install --break-system-packages requests
-```
-
-### "401 Unauthorized"
-
-Your API key is incorrect. Double-check it in `config.json`.
-
 ### "Connection refused"
-
 Make sure Grafana is running on `http://localhost:3002`
+
+### "No data available"
+Ensure your time range (`--from`) covers a period where the simulation was actually running.

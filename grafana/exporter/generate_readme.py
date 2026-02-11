@@ -209,6 +209,52 @@ def create_performance_dashboard(title, block_times, cpu_usage, stats, output_pa
     plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
 
+def generate_individual_plots(export_dir: Path):
+    """Generate a simple line plot for every CSV found in the data/ folder."""
+    data_dir = export_dir / 'data'
+    plots_dir = export_dir / 'plots'
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    
+    csv_files = list(data_dir.glob('*.csv'))
+    if not csv_files:
+        print("No CSV files found in data/ for individual plotting.")
+        return
+
+    print(f"Generating individual plots for {len(csv_files)} files...")
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            if 'Time' not in df.columns or len(df.columns) < 2:
+                continue
+            
+            # Use filename without timestamp as title
+            title = csv_file.stem.split('-data-as-joinbyfield-')[0].replace('_', ' ')
+            
+            plt.figure(figsize=(10, 6))
+            plt.style.use('bmh') # Use a clean style for individual plots
+            
+            # Convert Time to datetime for better plotting if possible
+            df['Time'] = pd.to_datetime(df['Time'])
+            
+            for col in df.columns[1:]:
+                # Clean values before plotting
+                series_data = df[col].apply(clean_value)
+                plt.plot(df['Time'], series_data, label=col, alpha=0.7)
+            
+            plt.title(f"Metric: {title}", fontsize=12, fontweight='bold')
+            plt.xlabel("Time")
+            plt.ylabel("Value")
+            plt.xticks(rotation=45)
+            if len(df.columns) > 2 and len(df.columns) < 10: # Only legend if not too many
+                plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
+            
+            plt.tight_layout()
+            plot_path = plots_dir / f"{csv_file.stem}.png"
+            plt.savefig(plot_path, dpi=150)
+            plt.close()
+        except Exception as e:
+            print(f"  Warning: Failed to plot {csv_file.name}: {e}")
+
 # --- Main Logic ---
 
 def parse_docker_compose(compose_file: str) -> Dict[str, Dict]:
@@ -265,7 +311,7 @@ COMPLETE_FILES_MAPPING = {
 def process_miner(miner_name, export_dir: Path, mappings: Dict):
     results = {}
     for metric, (parser, pattern, conv) in mappings.items():
-        files = glob.glob(str(export_dir / pattern))
+        files = glob.glob(str(export_dir / 'data' / pattern))
         if not files: continue
         df = pd.read_csv(files[0])
         
@@ -434,6 +480,9 @@ def main():
 
     readme.append("\nFiles to analyze:\n\n" + "\n".join(key_files))
     readme.append("\nFiles to analyze 2:\n\n" + "\n".join(complete_files))
+    
+    # Generate individual plots for all CSVs
+    generate_individual_plots(export_dir)
     
     with open(export_dir / 'README.md', 'w') as f: f.write("\n".join(readme))
     print("✓ Generated README, standard reports (/reports), and complete reports (/reports_complete).")
