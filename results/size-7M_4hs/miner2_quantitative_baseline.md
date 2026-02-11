@@ -1,4 +1,4 @@
-# Miner 2 Quantitative Performance Baseline
+# Miner 2 Quantitative Performance Baseline (7M Gas)
 
 This report provides a strict quantitative performance analysis of `rskj-miner2` based on simulation datasets. All metrics have been normalized and statistically aggregated to establish a technical baseline.
 
@@ -8,6 +8,7 @@ This report provides a strict quantitative performance analysis of `rskj-miner2`
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Processing** | Block Processing Time | s | 0.068 | 0.055 | 0.005 | 0.457 |
 | | Block Execution (JMX) | s | 0.039 | 0.030 | 0.002 | 0.379 |
+| | Gas Consumed (per block) | units | 5.87M | 6.00M | 0.00 | 6.00M |
 | **Resources** | CPU Usage | % | 21.30 | 17.20 | 0.81 | 197.00 |
 | | Memory Usage (RSS) | MiB | 3900.5 | 3942.4 | 3747.8 | 4014.1 |
 | | JVM Heap Used | MiB | 1314.8 | 1065.0 | 392.0 | 2877.4 |
