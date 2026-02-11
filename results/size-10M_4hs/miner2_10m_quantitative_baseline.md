@@ -20,7 +20,7 @@ This report provides a strict quantitative performance analysis of `rskj-miner2`
 
 ## 2. Visual Distributions
 
-![Miner 2 10M Performance Dashboard](miner2_10m_performance_dashboard.png)
+![Miner 2 10M Performance Dashboard](miner2_10m_performance_research_dashboard.png)
 
 ---
 
