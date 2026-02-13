@@ -17,10 +17,13 @@ scrape_configs:
       # 1. Force job label
       - target_label: job
         replacement: docker-json-logs
-      # 2. Extract our custom label 'simulation.id'
+      # 2. Ensure at least one label for Loki (avoids "at least one label pair required")
+      - target_label: source
+        replacement: promtail
+      # 3. Extract our custom label 'simulation.id'
       - source_labels: ['__meta_docker_container_label_simulation_id']
         target_label: 'container_id'
-      # 3. Only keep containers that have our label
+      # 4. Only keep containers that have our label
       - source_labels: ['container_id']
         regex: 'rskj-.*'
         action: keep
@@ -40,7 +43,7 @@ scrape_configs:
 
             # Extract uncles / difficulty / gasUsed / gasLimit / processed_s
             - regex:
-                expression: 'uncles:\[(?P<uncles>[^\]]*)\].*difficulty:\[(?P<difficulty>[0-9]+)\].*gasUsed:\s*(?P<gasUsed>[0-9]+),\s*gasLimit:\s*(?P<gasLimit>[0-9]+),\s*processed after:\s*\[(?P<processed_s>[0-9.]+)\]seconds'
+                expression: 'uncles:\[(?P<uncles>[^\]]*)\].*difficulty:\[(?P<difficulty>[0-9]+)\].*txs:\[(?P<txs>[0-9]+)\].*gasUsed:\s*(?P<gasUsed>[0-9]+),\s*gasLimit:\s*(?P<gasLimit>[0-9]+),\s*processed after:\s*\[(?P<processed_s>[0-9.]+)\]seconds'
 
             - template:
                 source: uncles
@@ -72,6 +75,11 @@ scrape_configs:
                 block_difficulty:
                   type: gauge
                   source: difficulty
+                  config:
+                    action: set
+                block_txs:
+                  type: gauge
+                  source: txs
                   config:
                     action: set
 

@@ -10,7 +10,7 @@ import json
 import csv
 import sys
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import argparse
@@ -172,7 +172,8 @@ class GrafanaExporter:
             writer.writerow(headers)
             
             for ts in sorted(time_series_map.keys()):
-                row = [datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')]
+                # Use UTC so CSV times match --from/--to (interpreted as UTC)
+                row = [datetime.fromtimestamp(ts, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')]
                 for header in headers[1:]:
                     row.append(time_series_map[ts].get(header, ''))
                 writer.writerow(row)
@@ -180,16 +181,22 @@ class GrafanaExporter:
         return str(filepath)
     
     def convert_time_to_timestamp(self, time_str: str) -> str:
-        """Convert time string to Unix timestamp."""
-        # If already a timestamp or ISO format, return as is
-        if time_str.replace('.', '').replace('-', '').replace(':', '').replace('T', '').replace('Z', '').isdigit():
-            # Parse ISO format
-            try:
-                dt = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-                return str(int(dt.timestamp()))
-            except:
-                return time_str
-        
+        """Convert time string to Unix timestamp. ISO times are always interpreted as UTC."""
+        time_str = time_str.strip()
+        # Try parsing as ISO / date-like first (handles "2026-02-09T19:00:00Z", "2026-02-09 19:00:00", etc.)
+        normalized = time_str.replace(' ', 'T', 1)
+        if 'Z' in normalized.upper():
+            normalized = normalized.replace('z', '+00:00').replace('Z', '+00:00')
+        try:
+            dt = datetime.fromisoformat(normalized)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return str(int(dt.timestamp()))
+        except Exception:
+            pass
+        # Pure numeric string (already Unix timestamp)
+        if time_str.isdigit():
+            return time_str
         # Handle relative times like 'now-6h'
         if 'now' in time_str:
             from datetime import timedelta

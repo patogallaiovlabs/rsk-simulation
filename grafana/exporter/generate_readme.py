@@ -119,6 +119,18 @@ def find_col(df, miner_name, metric_pattern=None, fallback=False):
         return df.columns[1]
     return None
 
+
+def find_all_cols(df, miner_name):
+    """Return all column names that contain miner_name (e.g. for Histo CSVs with multiple series per container)."""
+    out = []
+    m = miner_name.lower()
+    for col in df.columns:
+        if col == 'Time':
+            continue
+        if m in col.lower():
+            out.append(col)
+    return out
+
 def calculate_stats(values, auto_convert=None):
     if values is None or len(values) == 0:
         return None
@@ -157,16 +169,23 @@ def create_performance_dashboard(title, block_times, cpu_usage, stats, output_pa
     gs = fig.add_gridspec(2, 2, height_ratios=[2, 0.6], hspace=0.4, wspace=0.3, 
                           left=0.08, right=0.95, top=0.92, bottom=0.08)
     
-    # Block processing time distribution
+    # Block processing time distribution (fixed high granularity so all miners look comparable)
     ax1 = fig.add_subplot(gs[0, 0])
     ax1.set_facecolor('#f8f9fa')
     if block_times is not None and len(block_times) > 1:
-        ax1.hist(block_times, bins=50, density=True, color='#a0c4e8', alpha=0.6, edgecolor='white', linewidth=0.5)
+        n_bins = 200  # fixed high count so miner1 and miner2 look equally granular
+        ax1.hist(block_times, bins=n_bins, density=True, color='#a0c4e8', alpha=0.6, edgecolor='white', linewidth=0.3)
         try:
             kde = gaussian_kde(block_times)
-            x_kde = np.linspace(min(block_times), max(block_times), 200)
+            x_kde = np.linspace(min(block_times), max(block_times), 500)
             ax1.plot(x_kde, kde(x_kde), 'k-', linewidth=2)
-        except: pass
+        except Exception:
+            pass
+        # Rug: small ticks at bottom (subsample if many points for clarity)
+        ymin, _ = ax1.get_ylim()
+        n_rug = min(1000, len(block_times))
+        rug_x = block_times[:: max(1, len(block_times) // n_rug)][:n_rug] if len(block_times) > n_rug else block_times
+        ax1.plot(rug_x, np.full_like(rug_x, ymin), '|', color='#4a90d9', markersize=2, alpha=0.4)
     ax1.set_xlabel('Block Processing Time (s)')
     ax1.set_ylabel('Density')
     ax1.set_title('Block Processing Distribution')
@@ -275,7 +294,7 @@ def parse_docker_compose(compose_file: str) -> Dict[str, Dict]:
 # --- Mapping Definitions ---
 
 KEY_FILES_MAPPING = {
-    'Block Processing Time': ((lambda x: parse_time_value(x)), "Block_Processing_Time___1s-data-as-joinbyfield-*.csv", None),
+    'Block Processing Time': ((lambda x: parse_time_value(x)), "Block_Proc_Time_Histo-data-as-joinbyfield-*.csv", None),
     'BlockExecution JMX': ((lambda x: parse_time_value(x)), "BlockExecution_JMX___1s-data-as-joinbyfield-*.csv", None),
     'CPU Usage per Container': ((lambda x: clean_value(x)), "CPU_Usage_per_Container-data-as-joinbyfield-*.csv", None),
     'Memory Usage per Container': ((lambda x: parse_size_value(x, 'MiB')), "Memory_Usage_per_Container-data-as-joinbyfield-*.csv", 'bytes_to_mib'),
@@ -342,6 +361,17 @@ def process_miner(miner_name, export_dir: Path, mappings: Dict):
             results[metric] = heap_res
         else:
             is_gas = (metric == 'Gas Consumption')
+            # Block Processing Time: use all columns for this miner (Histo has multiple series per container)
+            if metric == 'Block Processing Time':
+                all_cols = find_all_cols(df, miner_name)
+                if all_cols:
+                    vals = np.concatenate([df[c].apply(parser).dropna().values for c in all_cols])
+                    vals = vals[~np.isnan(vals)]
+                else:
+                    vals = np.array([])
+                if len(vals) > 0:
+                    results[metric] = calculate_stats(vals, conv)
+                continue
             # Use the already found 'col' or fallback for gas
             if not col:
                 col = find_col(df, miner_name, fallback=is_gas)
@@ -420,6 +450,7 @@ def main():
     # File lists for README
     key_files = [
         "BlockExecution_JMX___1s-data-as-joinbyfield-",
+        "Block_Proc_Time_Histo-data-as-joinbyfield-",
         "Block_Processing_Time___1s-data-as-joinbyfield-",
         "Block_Difficulty-data-as-joinbyfield-",
         "CPU_Usage_per_Container-data-as-joinbyfield-",

@@ -32,6 +32,9 @@ limits_config:
   max_label_name_length: 1024
   max_label_value_length: 2048
   max_label_names_per_series: 30
+  # Allow logs that arrive late (e.g. after restart or buffer flush) up to 24h old
+  reject_old_samples: true
+  reject_old_samples_max_age: 24h
 
 compactor:
   working_directory: /loki/compactor
