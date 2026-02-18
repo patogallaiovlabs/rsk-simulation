@@ -173,7 +173,7 @@ def create_performance_dashboard(title, block_times, cpu_usage, stats, output_pa
     ax1 = fig.add_subplot(gs[0, 0])
     ax1.set_facecolor('#f8f9fa')
     if block_times is not None and len(block_times) > 1:
-        n_bins = 200  # fixed high count so miner1 and miner2 look equally granular
+        n_bins = 500  # fixed high count so miner1 and miner2 look equally granular
         ax1.hist(block_times, bins=n_bins, density=True, color='#a0c4e8', alpha=0.6, edgecolor='white', linewidth=0.3)
         try:
             kde = gaussian_kde(block_times)
