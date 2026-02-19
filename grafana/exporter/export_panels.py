@@ -18,15 +18,16 @@ import re
 
 
 class GrafanaExporter:
-    def __init__(self, grafana_url: str, api_key: str, dashboard_uid: str, 
-                 prometheus_url: str, output_dir: str):
+    def __init__(self, grafana_url: str, api_key: str, dashboard_uid: str,
+                 prometheus_url: str, output_dir: str, loki_url: Optional[str] = None):
         self.grafana_url = grafana_url.rstrip('/')
         self.api_key = api_key
         self.dashboard_uid = dashboard_uid
         self.prometheus_url = prometheus_url.rstrip('/')
+        self.loki_url = (loki_url or '').rstrip('/')
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.headers = {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json'
@@ -72,57 +73,112 @@ class GrafanaExporter:
         except Exception as e:
             print(f"    Warning: Prometheus query failed: {e}")
             return []
-    
-    def apply_variables(self, expr: str, variables: Dict[str, str], step: str = '30s') -> str:
-        """Apply dashboard variables to a Prometheus expression."""
-        # First, handle Grafana built-in variables
-        # $__rate_interval is typically 4x the scrape interval
-        # $__interval is the step/resolution
-        expr = expr.replace('$__rate_interval', '2m')  # 4x 30s scrape interval
+
+    def query_loki(self, query: str, start: str, end: str, step: str = '30s') -> List[Dict]:
+        """Query Loki (LogQL) for range data. Returns same shape as query_prometheus for matrix results."""
+        if not self.loki_url:
+            return []
+        url = f'{self.loki_url}/loki/api/v1/query_range'
+        # Loki accepts start/end in seconds (or nanoseconds). Use seconds.
+        params = {
+            'query': query,
+            'start': start,
+            'end': end,
+            'step': step,
+        }
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            result = response.json()
+            if result.get('status') != 'success':
+                return []
+            data = result.get('data', {})
+            results = data.get('result', [])
+            # Loki matrix values are [timestamp_ns_str, value]; convert to [seconds, value] for save_panel_to_csv
+            out = []
+            for series in results:
+                metric = series.get('metric', {})
+                values = series.get('values', [])
+                rows = []
+                for ts, val in values:
+                    t = int(float(ts))
+                    rows.append([t // 1_000_000_000 if t > 1e12 else t, val])
+                out.append({'metric': metric, 'values': rows})
+            return out
+        except Exception as e:
+            print(f"    Warning: Loki query failed: {e}")
+            return []
+
+    def apply_variables(self, expr: str, variables: Dict[str, str], step: str = '30s',
+                        start_ts: Optional[str] = None, end_ts: Optional[str] = None) -> str:
+        """Apply dashboard variables to a Prometheus or LogQL expression."""
+        # Grafana built-in variables
+        expr = expr.replace('$__rate_interval', '2m')
         expr = expr.replace('$__interval', step)
         expr = expr.replace('${__rate_interval}', '2m')
         expr = expr.replace('${__interval}', step)
-        
+        # Loki: $__auto and $__range (used in LogQL range vector e.g. [$__auto], [$__range])
+        expr = expr.replace('[$__auto]', f'[{step}]')
+        if start_ts and end_ts:
+            try:
+                duration_sec = int(end_ts) - int(start_ts)
+                if duration_sec >= 86400:
+                    range_str = f'{duration_sec // 86400}d'
+                elif duration_sec >= 3600:
+                    range_str = f'{duration_sec // 3600}h'
+                elif duration_sec >= 60:
+                    range_str = f'{duration_sec // 60}m'
+                else:
+                    range_str = f'{duration_sec}s'
+                expr = expr.replace('[$__range]', f'[{range_str}]')
+            except (ValueError, TypeError):
+                expr = expr.replace('[$__range]', f'[{step}]')
+        else:
+            expr = expr.replace('[$__range]', f'[{step}]')
+
         if not variables:
             return expr
-        
+
         for var_name, var_value in variables.items():
-            # Handle both $var and ${var} syntax
             expr = expr.replace(f'${var_name}', var_value)
             expr = expr.replace(f'${{{var_name}}}', var_value)
-            # Handle regex patterns like =~"$var"
             expr = re.sub(rf'=~"\\${var_name}"', f'=~"{var_value}"', expr)
             expr = re.sub(rf'=~"\\${{{var_name}}}"', f'=~"{var_value}"', expr)
-        
+
         return expr
     
     def get_panel_data(self, panel: Dict[str, Any], time_from: str, time_to: str,
                       variables: Optional[Dict[str, str]] = None, step: str = '30s') -> Dict[str, List]:
-        """Query data for a panel from Prometheus."""
+        """Query data for a panel from Prometheus or Loki (based on target datasource)."""
         if 'targets' not in panel or not panel['targets']:
             return {}
-        
+
         all_series = {}
-        
+
         for target in panel['targets']:
             if target.get('hide', False):
                 continue
-            
+
             expr = target.get('expr', '')
             if not expr:
                 continue
-            
-            # Apply variables
-            expr = self.apply_variables(expr, variables or {}, step)
-            
+
+            ds = target.get('datasource', {}) if isinstance(target.get('datasource'), dict) else {}
+            use_loki = (ds.get('type') == 'loki') and bool(self.loki_url)
+
+            # Apply variables (pass timestamps for Loki $__range)
+            expr = self.apply_variables(expr, variables or {}, step, start_ts=time_from, end_ts=time_to)
+
             ref_id = target.get('refId', 'A')
-            
-            # Query Prometheus
-            results = self.query_prometheus(expr, time_from, time_to, step)
-            
+
+            if use_loki:
+                results = self.query_loki(expr, time_from, time_to, step)
+            else:
+                results = self.query_prometheus(expr, time_from, time_to, step)
+
             if results:
                 all_series[ref_id] = results
-        
+
         return all_series
     
     def save_panel_to_csv(self, panel_title: str, data: Dict[str, List], 
@@ -319,23 +375,25 @@ def main():
     if 'variables' in config:
         variables = {**config['variables'], **variables}
     
-    # Get Prometheus URL
     prometheus_url = config.get('prometheus_url', 'http://localhost:9090')
-    
-    # Create exporter
+    loki_url = config.get('loki_url', '')  # e.g. http://localhost:3100 for Loki (LogQL) panels
+
     exporter = GrafanaExporter(
         grafana_url=config['grafana_url'],
         api_key=config['api_key'],
         dashboard_uid=config['dashboard_uid'],
         prometheus_url=prometheus_url,
-        output_dir=config.get('output_dir', './exports')
+        output_dir=config.get('output_dir', './exports'),
+        loki_url=loki_url
     )
-    
+
     print(f"\n{'='*60}")
     print(f"Grafana Panel Data Exporter")
     print(f"{'='*60}")
     print(f"Grafana: {config['grafana_url']}")
     print(f"Prometheus: {prometheus_url}")
+    if loki_url:
+        print(f"Loki: {loki_url}")
     if variables:
         print(f"Variables: {variables}")
     print(f"Output: {exporter.output_dir}")

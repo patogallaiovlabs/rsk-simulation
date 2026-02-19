@@ -1,10 +1,12 @@
 {
-    "grafana_url": "http://localhost:3000",
-    "api_key": "YOUR_GRAFANA_API_KEY_HERE",
+    "grafana_url": "http://localhost:3002",
+    "api_key": "--",
     "dashboard_uid": "mydash",
+    "prometheus_url": "http://localhost:9091",
     "output_dir": "../../results/grafana_exports",
     "variables": {
-        "container": "rskj-miner2",
+        "container": "rskj-miner2|rskj-miner1|rskj-miner3|rskj-miner4|rskj-node1|rskj-node2",
+        "instance": "rskj-miner2:8080|rskj-miner1:8080|rskj-miner3:8080|rskj-miner4:8080|rskj-node1:8080|rskj-node2:8080",
         "interval": "30s"
     }
 }

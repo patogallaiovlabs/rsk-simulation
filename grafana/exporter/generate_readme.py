@@ -410,28 +410,23 @@ def generate_miner_report(miner_name, results, output_path, img_path):
     
     for cat, metric, unit, dec in order:
         if metric == 'JVM GC':
-            gc_data = results.get('JVM GC Collection Time')
-            if gc_data:
-                for gc_type, s in gc_data.items():
-                    if s:
-                        report += f"| JVM GC | GC {gc_type} Time | s | {format_stat(s['mean'], 4)} | {format_stat(s['median'], 4)} | {format_stat(s['min'], 3)} | {format_stat(s['max'], 3)} |\n"
+            gc_data = results.get('JVM GC Collection Time') or {}
+            for gc_type in ('Copy', 'MarkSweep'):
+                s = gc_data.get(gc_type) if isinstance(gc_data, dict) else None
+                report += f"| JVM GC | GC {gc_type} Time | s | {format_stat(s['mean'], 4) if s else 'N/A'} | {format_stat(s['median'], 4) if s else 'N/A'} | {format_stat(s['min'], 3) if s else 'N/A'} | {format_stat(s['max'], 3) if s else 'N/A'} |\n"
         elif metric == 'JVM Heap Used':
             s = results.get('JVM Heap Memory Usage', {}).get('Used')
-            if s:
-                report += f"| JVM | JVM Heap Used | MiB | {format_stat(s['mean'], 1)} | {format_stat(s['median'], 1)} | {format_stat(s['min'], 1)} | {format_stat(s['max'], 1)} |\n"
+            report += f"| JVM | JVM Heap Used | MiB | {format_stat(s['mean'], 1) if s else 'N/A'} | {format_stat(s['median'], 1) if s else 'N/A'} | {format_stat(s['min'], 1) if s else 'N/A'} | {format_stat(s['max'], 1) if s else 'N/A'} |\n"
         elif metric == 'JVM Heap Allocated':
             s = results.get('JVM Heap Memory Usage', {}).get('Allocated')
-            if s:
-                report += f"| | JVM Heap Allocated | MiB | {format_stat(s['mean'], 1)} | {format_stat(s['median'], 1)} | {format_stat(s['min'], 1)} | {format_stat(s['max'], 1)} |\n"
+            report += f"| | JVM Heap Allocated | MiB | {format_stat(s['mean'], 1) if s else 'N/A'} | {format_stat(s['median'], 1) if s else 'N/A'} | {format_stat(s['min'], 1) if s else 'N/A'} | {format_stat(s['max'], 1) if s else 'N/A'} |\n"
         elif metric == 'Gas Consumed (per block)':
             s = results.get('Gas Consumption')
-            if s:
-                report += f"| | Gas Consumed (per block) | M units | {format_stat(s['mean'], dec)} | {format_stat(s['median'], dec)} | {format_stat(s['min'], dec)} | {format_stat(s['max'], dec)} |\n"
+            report += f"| | Gas Consumed (per block) | M units | {format_stat(s['mean'], dec) if s else 'N/A'} | {format_stat(s['median'], dec) if s else 'N/A'} | {format_stat(s['min'], dec) if s else 'N/A'} | {format_stat(s['max'], dec) if s else 'N/A'} |\n"
         else:
             s = results.get(metric)
-            if s:
-                report += f"| {cat} | {metric} | {unit} | {format_stat(s['mean'], dec)} | {format_stat(s['median'], dec)} | {format_stat(s['min'], dec)} | {format_stat(s['max'], dec)} |\n"
-            
+            report += f"| {cat} | {metric} | {unit} | {format_stat(s['mean'], dec) if s else 'N/A'} | {format_stat(s['median'], dec) if s else 'N/A'} | {format_stat(s['min'], dec) if s else 'N/A'} | {format_stat(s['max'], dec) if s else 'N/A'} |\n"
+
     report += f"\n![Performance Dashboard]({img_path.name})\n"
     with open(output_path, 'w') as f: f.write(report)
 
