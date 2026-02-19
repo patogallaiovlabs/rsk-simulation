@@ -3,6 +3,7 @@
     "api_key": "--",
     "dashboard_uid": "mydash",
     "prometheus_url": "http://localhost:9091",
+    "loki_url": "http://localhost:3100",
     "output_dir": "../../results/grafana_exports",
     "variables": {
         "container": "rskj-miner2|rskj-miner1|rskj-miner3|rskj-miner4|rskj-node1|rskj-node2",
