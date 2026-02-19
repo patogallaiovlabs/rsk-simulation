@@ -245,31 +245,42 @@ def generate_individual_plots(export_dir: Path):
             df = pd.read_csv(csv_file)
             if 'Time' not in df.columns or len(df.columns) < 2:
                 continue
-            
+
             # Use filename without timestamp as title
-            title = csv_file.stem.split('-data-as-joinbyfield-')[0].replace('_', ' ')
-            
+            stem_base = csv_file.stem.split('-data-as-joinbyfield-')[0]
+            title = stem_base.replace('_', ' ')
+            is_difficulty = 'Block_Difficulty' in stem_base or 'Block Difficulty' in title
+
             plt.figure(figsize=(10, 6))
-            plt.style.use('bmh') # Use a clean style for individual plots
-            
-            # Convert Time to datetime for better plotting if possible
+            plt.style.use('bmh')
+
             df['Time'] = pd.to_datetime(df['Time'])
-            
+            all_vals = []
             for col in df.columns[1:]:
-                # Clean values before plotting
                 series_data = df[col].apply(clean_value)
-                plt.plot(df['Time'], series_data, label=col, alpha=0.7)
-            
+                plt.plot(df['Time'], series_data, label='_nolegend_', alpha=0.7)
+                all_vals.extend(series_data.dropna().tolist())
+
+            if is_difficulty:
+                plt.ylim(20, 50)
+                if all_vals:
+                    all_vals = np.array([v for v in all_vals if not np.isnan(v)])
+                    if len(all_vals) > 0:
+                        mean_val = np.mean(all_vals)
+                        median_val = np.median(all_vals)
+                        plt.axhline(y=mean_val, color='green', linestyle='--', linewidth=2, label=f'Mean: {mean_val:.4g}')
+                        plt.axhline(y=median_val, color='orange', linestyle='-.', linewidth=2, label=f'Median: {median_val:.4g}')
+
             plt.title(f"Metric: {title}", fontsize=12, fontweight='bold')
             plt.xlabel("Time")
             plt.ylabel("Value")
             plt.xticks(rotation=45)
-            if len(df.columns) > 2 and len(df.columns) < 10: # Only legend if not too many
-                plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
-            
-            plt.tight_layout()
+            if is_difficulty:
+                plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=2, fontsize='small', frameon=True)
+
+            plt.tight_layout(rect=[0, 0.08, 1, 1])
             plot_path = plots_dir / f"{csv_file.stem}.png"
-            plt.savefig(plot_path, dpi=150)
+            plt.savefig(plot_path, dpi=150, bbox_inches='tight')
             plt.close()
         except Exception as e:
             print(f"  Warning: Failed to plot {csv_file.name}: {e}")

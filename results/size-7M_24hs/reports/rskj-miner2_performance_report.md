@@ -2,7 +2,7 @@
 
 | Category | Metric | Unit | Mean | Median | Min | Max |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Processing | Block Processing Time | s | 0.067 | 0.059 | 0.001 | 0.630 |
+| Processing | Block Processing Time | s | N/A | N/A | N/A | N/A |
 |  | BlockExecution JMX | s | 0.037 | 0.031 | 0.002 | 0.591 |
 | | Gas Consumed (per block) | M units | 6.13 | 6.23 | 0.00 | 6.33 |
 | Resources | CPU Usage per Container | % | 19.10 | 17.17 | 4.86 | 121.42 |
