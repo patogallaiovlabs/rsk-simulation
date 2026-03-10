@@ -13,6 +13,20 @@ services:
       - "9091:9090"
     restart: unless-stopped
 
+  rsk-rpc-exporter:
+    build:
+      context: ./rsk-rpc-exporter
+      dockerfile: Dockerfile
+    container_name: rsk-rpc-exporter
+    networks:
+      - rsk-simulation-net
+    environment:
+      - RPC_URLS=http://rskj-miner1:4444,http://rskj-miner2:4444,http://rskj-miner3:4444,http://rskj-miner4:4444,http://rskj-node1:4444,http://rskj-node2:4444
+      - PORT=9090
+    ports:
+      - "9092:9090"
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

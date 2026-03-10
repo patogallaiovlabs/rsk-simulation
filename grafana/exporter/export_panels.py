@@ -349,6 +349,8 @@ def main():
         description='Export panel data from Grafana dashboard (V2 - Direct Prometheus)'
     )
     parser.add_argument('--config', type=str, default='config.json')
+    parser.add_argument('--output-dir', dest='output_dir', type=str, default=None,
+                        help='Output directory for exported data (overrides config)')
     parser.add_argument('--from', dest='time_from', type=str, default='now-6h')
     parser.add_argument('--to', dest='time_to', type=str, default='now')
     parser.add_argument('--var', action='append', dest='variables')
@@ -377,13 +379,14 @@ def main():
     
     prometheus_url = config.get('prometheus_url', 'http://localhost:9090')
     loki_url = config.get('loki_url', '')  # e.g. http://localhost:3100 for Loki (LogQL) panels
+    output_dir = args.output_dir or config.get('output_dir', './exports')
 
     exporter = GrafanaExporter(
         grafana_url=config['grafana_url'],
         api_key=config['api_key'],
         dashboard_uid=config['dashboard_uid'],
         prometheus_url=prometheus_url,
-        output_dir=config.get('output_dir', './exports'),
+        output_dir=output_dir,
         loki_url=loki_url
     )
 

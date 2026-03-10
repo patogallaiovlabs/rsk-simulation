@@ -48,3 +48,7 @@ scrape_configs:
       - targets: ["rskj-node2:8080"]
         labels:
           name: "rskj-node2"
+
+  - job_name: "rsk-rpc-exporter"
+    static_configs:
+      - targets: ["rsk-rpc-exporter:9090"]

@@ -1,0 +1,5 @@
+.vscode/*
+.vscode/
+head-dumps
+rsk-rpc-exporter/node_modules/*
+rsk-rpc-exporter/node_modules

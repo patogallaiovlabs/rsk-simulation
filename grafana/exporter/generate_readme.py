@@ -299,7 +299,14 @@ def parse_docker_compose(compose_file: str) -> Dict[str, Dict]:
             for e in env:
                 if 'FLUSH_BLOCKS=' in e: fb = e.split('=')[1].replace('${FLUSH_BLOCKS:-', '').replace('}', '')
                 if 'IS_MINER=true' in e: im = True
-            configs[service_name] = {'flush_blocks': fb, 'is_miner': im}
+            limits = service_config.get('deploy', {}).get('resources', {}).get('limits', {}) or {}
+            cpus = limits.get('cpus', '')
+            memory = limits.get('memory', '')
+            if isinstance(cpus, (int, float)):
+                cpus = str(cpus)
+            elif isinstance(cpus, str):
+                cpus = cpus.strip("'\"")
+            configs[service_name] = {'flush_blocks': fb, 'is_miner': im, 'cpus': cpus, 'memory': memory}
     return configs
 
 # --- Mapping Definitions ---
@@ -399,7 +406,7 @@ def process_miner(miner_name, export_dir: Path, mappings: Dict):
 def format_stat(val, decimals=2):
     return f"{val:.{decimals}f}" if val is not None and not np.isnan(val) else 'N/A'
 
-def generate_miner_report(miner_name, results, output_path, img_path):
+def generate_miner_report(miner_name, results, output_path, img_path, resource_limits=None):
     report = f"# {miner_name.replace('rskj-', '').capitalize()} Quantitative Performance Report\n\n"
     report += "| Category | Metric | Unit | Mean | Median | Min | Max |\n"
     report += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
@@ -410,6 +417,7 @@ def generate_miner_report(miner_name, results, output_path, img_path):
         ('', 'Gas Consumed (per block)', 'M units', 2),
         ('Resources', 'CPU Usage per Container', '%', 2),
         ('', 'Memory Usage per Container', 'MiB', 1),
+        ('', 'CPU & Memory Assigned', '-', 0),
         ('JVM', 'JVM Heap Used', 'MiB', 1),
         ('', 'JVM Heap Allocated', 'MiB', 1),
         ('JVM GC', 'JVM GC', 's', 4),
@@ -420,7 +428,15 @@ def generate_miner_report(miner_name, results, output_path, img_path):
     ]
     
     for cat, metric, unit, dec in order:
-        if metric == 'JVM GC':
+        if metric == 'CPU & Memory Assigned':
+            if resource_limits and (resource_limits.get('cpus') or resource_limits.get('memory')):
+                cpus = resource_limits.get('cpus', '') or '-'
+                memory = resource_limits.get('memory', '') or '-'
+                val = f"{cpus} CPU, {memory}"
+                report += f"| | CPU & Memory Assigned | - | {val} | - | - | - |\n"
+            else:
+                report += f"| | CPU & Memory Assigned | - | N/A | - | - | - |\n"
+        elif metric == 'JVM GC':
             gc_data = results.get('JVM GC Collection Time') or {}
             for gc_type in ('Copy', 'MarkSweep'):
                 s = gc_data.get(gc_type) if isinstance(gc_data, dict) else None
@@ -501,7 +517,7 @@ def main():
             bt = results_std.get('Block Processing Time', {}).get('raw')
             cpu = results_std.get('CPU Usage per Container', {}).get('raw')
             create_performance_dashboard(f"Performance Analysis (Standard) - {s_name}", bt, cpu, results_std, img_path, x_limit=1.0)
-            generate_miner_report(s_name, results_std, rpt_path, img_path)
+            generate_miner_report(s_name, results_std, rpt_path, img_path, resource_limits=cfg)
             readme.append(f"[Go to detailed report for {s_name}](reports/{rpt_path.name})")
 
         # 2. Complete Report (Dynamic X-axis)
@@ -512,7 +528,7 @@ def main():
             bt = results_comp.get('Block Processing Time', {}).get('raw')
             cpu = results_comp.get('CPU Usage per Container', {}).get('raw')
             create_performance_dashboard(f"Performance Analysis (Complete) - {s_name}", bt, cpu, results_comp, img_path, x_limit=None)
-            generate_miner_report(s_name, results_comp, rpt_path, img_path)
+            generate_miner_report(s_name, results_comp, rpt_path, img_path, resource_limits=cfg)
             readme.append(f"[Go to complete report for {s_name}](reports_complete/{rpt_path.name})\n")
 
     readme.append("\nFiles to analyze:\n\n" + "\n".join(key_files))
