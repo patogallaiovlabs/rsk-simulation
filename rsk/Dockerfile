@@ -22,6 +22,15 @@ RUN curl -sL https://secchannel.rsk.co/SUPPORT.asc | gpg --import && \
 FROM eclipse-temurin:17-jre@sha256:38e0afc86a10bf4cadbf1586fb617b3a9a4d09c9a0be882e29ada4ed0895fc84
 LABEL org.opencontainers.image.authors="ops@rootstocklabs.com"
 
+# Install jattach for jcmd/NMT access without the full JDK
+RUN apt-get update -y && \
+  apt-get install -y --no-install-recommends wget && \
+  ARCH=$(dpkg --print-architecture) && \
+  wget -q -O /usr/local/bin/jattach \
+    "https://github.com/jattach/jattach/releases/download/v2.2/jattach-linux-${ARCH}" && \
+  chmod +x /usr/local/bin/jattach && \
+  apt-get remove -y wget && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+
 RUN useradd -ms /sbin/nologin -d /var/lib/rsk rsk
 
 # Use a separate directory for JMX to avoid volume mount overrides
