@@ -296,9 +296,11 @@ def parse_docker_compose(compose_file: str) -> Dict[str, Dict]:
             env = service_config.get('environment', [])
             fb = '100'
             im = False
+            mam = 'N/A'
             for e in env:
                 if 'FLUSH_BLOCKS=' in e: fb = e.split('=')[1].replace('${FLUSH_BLOCKS:-', '').replace('}', '')
                 if 'IS_MINER=true' in e: im = True
+                if 'MALLOC_ARENA_MAX=' in e: mam = e.split('=')[1]
             limits = service_config.get('deploy', {}).get('resources', {}).get('limits', {}) or {}
             cpus = limits.get('cpus', '')
             memory = limits.get('memory', '')
@@ -306,7 +308,7 @@ def parse_docker_compose(compose_file: str) -> Dict[str, Dict]:
                 cpus = str(cpus)
             elif isinstance(cpus, str):
                 cpus = cpus.strip("'\"")
-            configs[service_name] = {'flush_blocks': fb, 'is_miner': im, 'cpus': cpus, 'memory': memory}
+            configs[service_name] = {'flush_blocks': fb, 'is_miner': im, 'cpus': cpus, 'memory': memory, 'malloc_arena_max': mam}
     return configs
 
 # --- Mapping Definitions ---
@@ -415,9 +417,6 @@ def generate_miner_report(miner_name, results, output_path, img_path, resource_l
         ('Processing', 'Block Processing Time', 's', 3),
         ('', 'BlockExecution JMX', 's', 3),
         ('', 'Gas Consumed (per block)', 'M units', 2),
-        ('Resources', 'CPU Usage per Container', '%', 2),
-        ('', 'Memory Usage per Container', 'MiB', 1),
-        ('', 'CPU & Memory Assigned', '-', 0),
         ('JVM', 'JVM Heap Used', 'MiB', 1),
         ('', 'JVM Heap Allocated', 'MiB', 1),
         ('JVM GC', 'JVM GC', 's', 4),
@@ -425,6 +424,10 @@ def generate_miner_report(miner_name, results, output_path, img_path, resource_l
         ('', 'Disk Write', 'MiB/s', 3),
         ('Network', 'Received Network Traffic per Container', 'KiB/s', 2),
         ('', 'Sent Network Traffic per Container', 'KiB/s', 2),
+        ('Resources', 'CPU Usage per Container', '%', 2),
+        ('', 'Memory Usage per Container', 'MiB', 1),
+        ('', 'CPU & Memory Assigned', '-', 0),
+        ('', 'MALLOC_ARENA_MAX', '-', 0),
     ]
     
     for cat, metric, unit, dec in order:
@@ -450,6 +453,9 @@ def generate_miner_report(miner_name, results, output_path, img_path, resource_l
         elif metric == 'Gas Consumed (per block)':
             s = results.get('Gas Consumption')
             report += f"| | Gas Consumed (per block) | M units | {format_stat(s['mean'], dec) if s else 'N/A'} | {format_stat(s['median'], dec) if s else 'N/A'} | {format_stat(s['min'], dec) if s else 'N/A'} | {format_stat(s['max'], dec) if s else 'N/A'} |\n"
+        elif metric == 'MALLOC_ARENA_MAX':
+            mam = resource_limits.get('malloc_arena_max', 'N/A') if resource_limits else 'N/A'
+            report += f"| | MALLOC_ARENA_MAX | - | {mam} | - | - | - |\n"
         else:
             s = results.get(metric)
             report += f"| {cat} | {metric} | {unit} | {format_stat(s['mean'], dec) if s else 'N/A'} | {format_stat(s['median'], dec) if s else 'N/A'} | {format_stat(s['min'], dec) if s else 'N/A'} | {format_stat(s['max'], dec) if s else 'N/A'} |\n"
