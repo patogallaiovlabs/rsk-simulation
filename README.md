@@ -120,7 +120,7 @@ The block gas limit can be adjusted using the `BLOCK_GAS_LIMIT` environment vari
 The network uses different genesis files to simulate various scenarios. You can swap them by updating the volume mount in `docker-compose.rskj.yml`:
 ```yaml
 volumes:
-  - ./rsk/genesis_25M.json:/var/lib/rsk/genesis.json
+  - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
 ```
 
 ### 3. Network Latency (`WIRE_DELAY`)

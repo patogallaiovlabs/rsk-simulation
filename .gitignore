@@ -2,3 +2,4 @@
 .vscode/
 head-dumps
 rsk-rpc-exporter/node_modules/**/*
+nogit

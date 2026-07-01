@@ -262,7 +262,6 @@ def generate_individual_plots(export_dir: Path):
                 all_vals.extend(series_data.dropna().tolist())
 
             if is_difficulty:
-                plt.ylim(20, 50)
                 if all_vals:
                     all_vals = np.array([v for v in all_vals if not np.isnan(v)])
                     if len(all_vals) > 0:

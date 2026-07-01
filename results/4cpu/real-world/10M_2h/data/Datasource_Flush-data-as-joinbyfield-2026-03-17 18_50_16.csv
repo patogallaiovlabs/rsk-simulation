@@ -1,0 +1,9 @@
+Time,"__name__=""promtail_custom_block_datasource_flush_seconds"",container_id=""rskj-miner1"",exported_job=""docker-json-logs"",instance=""host.docker.internal:9080"",job=""promtail"",source=""promtail""","__name__=""promtail_custom_block_datasource_flush_seconds"",container_id=""rskj-miner2"",exported_job=""docker-json-logs"",instance=""host.docker.internal:9080"",job=""promtail"",source=""promtail""","__name__=""promtail_custom_block_datasource_flush_seconds"",container_id=""rskj-node1"",exported_job=""docker-json-logs"",instance=""host.docker.internal:9080"",job=""promtail"",source=""promtail""","__name__=""promtail_custom_block_datasource_flush_seconds"",container_id=""rskj-node2"",exported_job=""docker-json-logs"",instance=""host.docker.internal:9080"",job=""promtail"",source=""promtail"""
+2026-03-17 21:46:46,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:47:16,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:47:46,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:48:16,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:48:46,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:49:16,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:49:46,9.806367,9.588624,9.880064,10.419771
+2026-03-17 21:50:16,9.806367,9.588624,9.880064,10.419771

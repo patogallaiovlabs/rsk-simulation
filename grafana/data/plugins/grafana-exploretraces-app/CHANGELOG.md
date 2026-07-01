@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.1
+
+
+## 1.4.0
+
+##### Chores
+
+*  React 19 upgrade (#666) (e9db5d4f)
+
+
 ## 1.3.3
 
 ##### Chores

@@ -1,2 +1,9 @@
 rules:
+  # RocksDB Statistics
+  - pattern: "org.rocksdb<type=(.+), name=(.+)><>(.+):"
+    name: rocksdb_$1_$3
+    labels:
+      database: "$2"
+  
+  # Default rule for everything else
   - pattern: ".*"

@@ -12,6 +12,11 @@ services:
     ports:
       - "9091:9090"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   rsk-rpc-exporter:
     build:
@@ -23,9 +28,18 @@ services:
     environment:
       - RPC_URLS=http://rskj-miner1:4444,http://rskj-miner2:4444,http://rskj-miner3:4444,http://rskj-miner4:4444,http://rskj-node1:4444,http://rskj-node2:4444
       - PORT=9090
+      - DOCKER_API_VERSION=1.44
     ports:
       - "9092:9090"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   grafana:
     image: grafana/grafana:latest
@@ -38,6 +52,11 @@ services:
       - ./grafana/data:/var/lib/grafana
       - ./grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
     depends_on:
       - prometheus
 
@@ -56,6 +75,11 @@ services:
       - /var/run:/var/run:ro
       - /run:/run:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -65,6 +89,11 @@ services:
     ports:
       - "9300:9100"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   docker-stats-exporter:
     image: wywywywy/docker_stats_exporter:latest
@@ -76,6 +105,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   loki:
     image: grafana/loki:3.0.0
@@ -89,6 +123,11 @@ services:
       - ./grafana/loki-config.yml:/etc/loki/config.yml:ro
       - loki_data:/loki
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
 
   promtail:
     image: grafana/promtail:3.0.0
@@ -105,6 +144,11 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
     depends_on:
       - loki
 
