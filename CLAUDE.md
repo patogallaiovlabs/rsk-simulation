@@ -91,11 +91,11 @@ The stacks are intentionally decoupled so the monitoring stack can be restarted 
 The image is a multi-stage build: it compiles RSKj from the `repos/rskj` git submodule using Gradle, then produces a minimal JRE image. Key details:
 
 - Base: `eclipse-temurin:17`
-- Includes `jattach` (for in-container `jcmd` / NMT access) and `libjemalloc2` (preloaded via `LD_PRELOAD`)
+- Includes `jattach` (for in-container `jcmd` / NMT access). **jemalloc preloading has been removed** — the `libjemalloc2` install and `LD_PRELOAD` wiring are gone from the Dockerfile, so every container now runs on glibc malloc regardless of `MALLOC_CONF`.
 - JMX Prometheus Java Agent is baked in at `/usr/local/lib/rsk/` and runs on port 8080 inside the container (exposed as 9501–9506 on the host)
-- `MINER_ID`, `IS_MINER`, `BLOCK_GAS_LIMIT`, `WIRE_DELAY`, `FLUSH_BLOCKS`, `MALLOC_CONF`, `DEFAULT_JVM_OPTS`, `SHARED_BLOCK_CACHE_SIZE` are all runtime env vars
+- `MINER_ID`, `IS_MINER`, `BLOCK_GAS_LIMIT`, `WIRE_DELAY`, `FLUSH_BLOCKS`, `DEFAULT_JVM_OPTS`, `SHARED_BLOCK_CACHE_SIZE` are all runtime env vars. `MALLOC_CONF` is still set on the disabled `rskj-node1`/`rskj-node2` in `docker-compose.rskj.yml`, but since jemalloc is no longer preloaded it is now a **no-op** there.
 - The genesis file is volume-mounted; different gas limit scenarios use different genesis files in `rsk/genesis/` (`rsk/genesis/genesis_7M.json` through `rsk/genesis/genesis_360M.json`)
-- Env vars that have **no Dockerfile default** must be set per-service or startup breaks: `FLUSH_BLOCKS` is interpolated raw into `-Dblockchain.flushNumberOfBlocks=${FLUSH_BLOCKS}`, so omitting it passes an empty value. (`SHARED_BLOCK_CACHE_SIZE` defaults to `1M`, `WIRE_DELAY` to `100`, `BLOCK_GAS_LIMIT` to `7000000`, `GENESIS_FILE` to empty, `IS_MINER` to `true` in the image.)
+- Env vars that have **no Dockerfile default** must be set per-service or startup breaks: `FLUSH_BLOCKS` is interpolated raw into `-Dblockchain.flushNumberOfBlocks=${FLUSH_BLOCKS}`, so omitting it passes an empty value. `SHARED_BLOCK_CACHE_SIZE` also has **no Dockerfile default** — when unset, the `-Ddatabase.rocksdb.sharedBlockCacheSize` flag is omitted entirely and RSKj falls back to `rsk.conf`'s `database.rocksdb.sharedBlockCacheSize` (currently `256M`). (`WIRE_DELAY` defaults to `100`, `BLOCK_GAS_LIMIT` to `7000000`, `GENESIS_FILE` to empty, `IS_MINER` to `true` in the image.)
 
 ### Configuration: Changing Gas Limit
 
@@ -111,45 +111,40 @@ After any env change: `docker compose -f docker-compose.rskj.yml up -d --force-r
 
 ### Configuration: per-node RocksDB block cache (`SHARED_BLOCK_CACHE_SIZE`)
 
-The RocksDB shared block cache (`database.rocksdb.sharedBlockCacheSize`) used to be hardcoded in `rsk/rsk.conf`. Because `rsk.conf` is mounted into **every** node, it could not differ per node. It is now a per-node env var:
+The RocksDB shared block cache (`database.rocksdb.sharedBlockCacheSize`) is set in `rsk/rsk.conf` as the shared default (currently `256M`), with an optional per-node override:
 
-- `rsk/Dockerfile` defines `ENV SHARED_BLOCK_CACHE_SIZE="1M"` and passes `-Ddatabase.rocksdb.sharedBlockCacheSize=${SHARED_BLOCK_CACHE_SIZE}` on the `java` command line. A `-D` system property overrides the value in `rsk.conf`, so `rsk.conf` no longer sets it.
-- Set it per service in `docker-compose.rskj.yml` (e.g. `- SHARED_BLOCK_CACHE_SIZE=100M`) to compare cache sizes across nodes. Changing only the env var needs **no image rebuild** — `docker compose ... up -d --force-recreate` is enough.
+- `rsk/Dockerfile` does **not** default `SHARED_BLOCK_CACHE_SIZE` — when the env var is unset, the `-Ddatabase.rocksdb.sharedBlockCacheSize=${SHARED_BLOCK_CACHE_SIZE}` flag is omitted entirely and RSKj uses `rsk.conf`'s value. Currently only the disabled `rskj-node1`/`rskj-node2` set it (`1M`); `rskj-miner1..4` all inherit `rsk.conf`'s `256M`.
+- Set it per service in `docker-compose.rskj.yml` (e.g. `- SHARED_BLOCK_CACHE_SIZE=100M`) to compare cache sizes across nodes — a `-D` system property overrides `rsk.conf`. Changing only the env var needs **no image rebuild** — `docker compose ... up -d --force-recreate` is enough.
 - No-op for LevelDB nodes (LevelDB ignores the RocksDB block-cache setting).
 
 This is the general pattern in this repo: shared/static config lives in `rsk.conf`; anything that must differ per node is an env var injected as a `-D` override via the Dockerfile entrypoint.
 
-### Configuration: per-DB RocksDB compression (`database.rocksdb.compressionType`)
+### Configuration: per-DB RocksDB compression (`database.rocksdb.compressionType`) — currently inactive
 
-The `rats-blocksize-stress-SNAPSHOT` branch of `repos/rskj` adds **per-datasource** RocksDB compression. `RocksDbDataSource.createOptions()` calls `config.getRocksDbCompressionType(name)` and `RskSystemProperties` resolves it from (in priority order):
+This feature (per-datasource RocksDB compression, resolved via `database.rocksdb.compressionType[.<dbName>|.default]` in `RskSystemProperties`/`RocksDbDataSource.createOptions()`) lived on the `repos/rskj` branch `rats-blocksize-stress-SNAPSHOT`. **It is gone from the current submodule checkout**: `.gitmodules` now tracks `repos/rskj` at `branch = master`, `RocksDbDataSource.setCompressionType` is hardcoded to `CompressionType.NO_COMPRESSION` (no per-DB name lookup), and `docker-compose.rskj.yml` no longer sets any `database.rocksdb.compressionType*` override on any node.
 
-1. `database.rocksdb.compressionType.<dbName>` — per-DB (e.g. `...receipts`, `...unitrie`, `...blocks`).
-2. `database.rocksdb.compressionType.default` — fallback for all DBs.
-3. `database.rocksdb.compressionType` — a flat single value.
-4. Hardcoded default: **`NO_COMPRESSION`**.
-
-Accepted values (case-insensitive): `none`, `snappy`, `lz4`, `zstd`, or the RocksDB enum names (`NO_COMPRESSION`, `SNAPPY_COMPRESSION`, ...). An unknown value throws `RskConfigurationException` at startup.
-
-The **DB name is the datasource directory's last path segment** (`KeyValueDataSourceUtils.makeDataSource` → `datasourcePath.getFileName()`), so the per-DB names match the on-disk dirs: `blocks`, `blooms`, `receipts`, `stateRoots`, `unitrie`, `wallet`.
-
-Example — LZ4 only on `miner1`'s receipts DB. Since `rsk.conf` is shared, set it as a `-D` in that service's `RSKJ_SYS_PROPS` (a `-D` system property wins over the `rsk.conf` file, per `ConfigLoader`):
-
-```yaml
-# docker-compose.rskj.yml, rskj-miner1 only
-- RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/ -Ddatabase.rocksdb.compressionType.receipts=lz4
-```
-
-Operational notes:
-- **Compression is applied to newly written/compacted SST files**, not retroactively. Existing SSTs keep their old format until RocksDB compacts them — no resync/wipe needed.
-- **Behavior change when adopting this branch:** the old image never called `setCompressionType`, so RocksDB used its built-in default (Snappy). The new code defaults unconfigured DBs to `NO_COMPRESSION`. To keep the old behavior on un-overridden DBs, set `database.rocksdb.compressionType.default = snappy` (in `rsk.conf` for all nodes, or per node).
-- LZ4/ZSTD/Snappy libs are bundled in the `rocksdbjni` jar (the branch is on "rocksdb 10"), so no extra native deps are needed.
-- Requires an **image rebuild** if the running image predates the feature, **and** the new `rsk.jar` must be pushed into the node's volume (see the critical gotcha under "Per-node image rebuilds"). The `Setting RocksDB compressionType ...` log line is suppressed (the `db` logger is `WARN`), so confirm via the RocksDB `OPTIONS` file instead: `grep -i "^[[:space:]]*compression=" $(ls -t test/local-regtest/database/receipts/OPTIONS-* | head -1)` should show `kLZ4Compression`.
+To bring it back: check out the commit/branch that had this feature in `repos/rskj`, rebuild the affected node's image, and re-add a `-Ddatabase.rocksdb.compressionType[...]` override to that service's `RSKJ_SYS_PROPS`. Worth remembering if you do:
+- Compression only applies to newly written/compacted SST files, not retroactively — no resync/wipe needed after enabling it.
+- Unconfigured DBs default to `NO_COMPRESSION` on that branch (vs. RocksDB's built-in Snappy default on stock RSKj) — set `database.rocksdb.compressionType.default = snappy` to preserve old behavior on DBs you don't explicitly override.
+- The `Setting RocksDB compressionType ...` log line is suppressed (the `db` logger is `WARN`); verify via the RocksDB `OPTIONS` file instead: `grep -i "^[[:space:]]*compression=" $(ls -t test/local-regtest/database/receipts/OPTIONS-* | head -1)`.
+- Requires an image rebuild, and the new `rsk.jar` must actually reach the node's volume (see the critical gotcha under "Per-node image rebuilds").
 
 ### Configuration: changing a node's DB backend (RocksDB ↔ LevelDB)
 
 The datasource is selected with `-Dkeyvalue.datasource` in a service's `RSKJ_SYS_PROPS` (absent = RocksDB default; `=leveldb` for LevelDB). All four miners now run RocksDB (`miner2` was previously LevelDB and was switched).
 
 Important: an existing data directory records its backend in `<database.dir>/dbKind.properties` (e.g. `keyvalue.datasource=ROCKS_DB`). The runtime datasource must match the on-disk one, otherwise the node won't read the existing DB. To switch backends you must also replace/wipe the database (see "Cloning a node's database").
+
+### Configuration: current `rsk.conf` defaults (mining, consensus, caches, debug RPC)
+
+`rsk/rsk.conf` (shared across all nodes; a `-D` in a service's `RSKJ_SYS_PROPS` always wins over it) currently sets:
+
+- **Timed mining**: `miner.client.timedMine = true`, `medianBlockTime = 30 seconds` (exponential distribution). **Gotcha:** the Dockerfile entrypoint's `MINER_OPTS` already hardcodes `-Dminer.client.timedMine=true -Dminer.client.medianBlockTime=10s` for every miner (`IS_MINER=true`) — since a `-D` system property wins over `rsk.conf`, **the entrypoint's `10s` is what actually runs**, not `rsk.conf`'s `30 seconds`. To change the median block time, edit the Dockerfile entrypoint (or add an equivalent override to a service's `RSKJ_SYS_PROPS`), not `rsk.conf`.
+- **RSKIP144 (parallel transaction execution) disabled**: `blockchain.config.consensusRules.rskip144 = -1`. With PTE active, the per-transaction gas limit becomes a *sublist* share of the block gas limit (e.g. 25M → ~8.33M); disabling it lets a single transaction use the full block gas limit. Consensus-critical — must match on **every** node or they'll fork.
+- **RSKIP97 activated at genesis**: `rskip97 = 0`, needed because with genesis timestamp `0` the legacy difficulty-drop path would zero out block 1's difficulty and stall the chain at genesis. Also consensus-critical.
+- **Larger caches than before**: `cache.states.max-elements = 10,000,000` (was `10,000`), `cache.stateRoots.max-elements = 400,000` (was `4,000`), plus new `sync.netBlockStore` limits (`maxHeaders`/`maxBlocks = 100`) and cleanup tuning (`processedBlocksToCheckStore = 50`, `releasedRange = 100`).
+- **`rpc.modules.debug` enabled**, exposing `debug_wireProtocolQueueSize` — `rsk-rpc-exporter/exporter.js` was extended to scrape it as `rsk_wire_protocol_queue_size`.
+- `targetgaslimit`/`forcegaslimit` in this file (`17000000`) are themselves overridden per node: the Dockerfile entrypoint always passes `-Dtargetgaslimit=${BLOCK_GAS_LIMIT}` (currently `25000000` for every miner via `docker-compose.rskj.yml`).
 
 ### Enabling/disabling nodes (compose profiles)
 
@@ -163,7 +158,7 @@ Note: disabled nodes still appear in `nmt.sh`'s container list and will show `N/
 
 ### Node-specific notes
 
-- `rskj-miner4` is a **clean baseline** miner: no `MALLOC_CONF` (glibc/jemalloc defaults), default `SHARED_BLOCK_CACHE_SIZE` (1M), no JMX/`WIRE_DELAY` overrides (so it inherits the image default `WIRE_DELAY=100` — the other nodes use `0`). It keeps only `DEFAULT_JVM_OPTS`, `RSKJ_SYS_PROPS`, and `RSKJ_LOG_PROPS`. Useful as the "untuned" control when comparing memory behavior.
+- As of the current `docker-compose.rskj.yml`, `rskj-miner1..4` are configured **almost identically** — same `DEFAULT_JVM_OPTS`, same `RSKJ_SYS_PROPS`, JMX enabled with a per-node port, `WIRE_DELAY=0`. None of them set `MALLOC_CONF`, `SHARED_BLOCK_CACHE_SIZE`, or a RocksDB compression override anymore. `rskj-miner4`'s only remaining differences are a lower memory limit (`5G` vs `6G`) and JMX on port `9104` instead of `9101-9103`. It previously served as an intentional "untuned baseline" (no jemalloc tuning, no JMX) for the memory investigation described further below — **that distinction no longer holds**; treat the baseline-comparison framing there as historical.
 
 ### Per-node image rebuilds
 
@@ -176,9 +171,9 @@ Each service in `docker-compose.rskj.yml` has its own `build:` block and **no ex
   docker compose -f docker-compose.rskj.yml up -d rskj-miner1   # recreates only miner1; volume (DB) persists
   ```
 
-- This is the way to roll out an `repos/rskj` source change (e.g. the compression feature) to a single node while an experiment keeps running on the others. The image build compiles RSKj via Gradle, so it takes several minutes.
-- A source change in `repos/rskj` only reaches a node when **that node's image is rebuilt**; nodes on older images keep the old behavior. (The compression feature is currently uncommitted in `repos/rskj` and reaches a node on its next rebuild.)
-- `repos/rskj` (the submodule, branch `rats-blocksize-stress-SNAPSHOT`) is what the image builds — **not** the separate `workspace/rsk/rskj` (`master`) checkout, which lacks these changes.
+- This is the way to roll out a `repos/rskj` source change to a single node while an experiment keeps running on the others. The image build compiles RSKj via Gradle, so it takes several minutes.
+- A source change in `repos/rskj` only reaches a node when **that node's image is rebuilt**; nodes on older images keep the old behavior.
+- `repos/rskj` (the submodule) is what the image builds — **not** the separate `workspace/rsk/rskj` checkout. `.gitmodules` declares a tracking branch, but the submodule's actual checked-out working copy can be on a different local branch with uncommitted changes (see "Git Submodules" below) — before assuming what an image build will pick up, run `cd repos/rskj && git branch --show-current && git status`.
 
 So the normal flow to roll out a code change to a node is just:
 
@@ -259,6 +254,8 @@ The node list is hardcoded in `nmt/nmt.sh`: `DOCKER_CONTAINERS=(rskj-miner1 rskj
 
 Initialize with: `git submodule update --init --recursive`
 
+**The branch a submodule is checked out to can drift from what `.gitmodules` declares.** Checking out a different local branch (or leaving local modifications) inside a submodule doesn't touch `.gitmodules` and isn't visible from the top-level repo's `git status`. `.gitmodules`'s `branch =` is only what `git submodule update --remote` would track — not a guarantee of what's currently checked out. Before relying on submodule behavior (e.g. "does this RSKj build include feature X"), run `cd repos/<name> && git branch --show-current && git status` to see the actual commit/branch/local diffs.
+
 ### Monitoring: Disable JMX Scraping
 
 To skip JMX/JVM metrics (lighter scraping):
@@ -274,11 +271,11 @@ PROMETHEUS_CONFIG=grafana/prometheus-no-jvm.yml docker compose -f docker-compose
 | miner1 | 4444 | 4445 | 9101 | 9501 | 50501 |
 | miner2 | 4446 | 4447 | 9102 | 9502 | 50502 |
 | miner3 | 4448 | 4449 | 9103 | 9503 | 50503 |
-| miner4 | 4450 | 4451 | — (JMX off) | 9504 | 50504 |
+| miner4 | 4450 | 4451 | 9104 | 9504 | 50504 |
 | node1 (disabled)  | 4464 | 4475 | 9201 | 9505 | 50601 |
 | node2 (disabled)  | 4465 | 4476 | 9202 | 9506 | 50602 |
 
-`miner4` leaves `ENABLE_JMX` unset (image default off), so it exposes no direct JMX port — but the JMX-Prometheus javaagent on `8080`→`9504` is always on, so NMT/Prometheus scraping still works.
+All four miners (`miner1..4`) now explicitly set `ENABLE_JMX=true` with a dedicated `JMX_PORT`. The JMX-Prometheus javaagent on `8080`→`950x` is always on regardless of `ENABLE_JMX`, so NMT/Prometheus scraping works either way.
 
 ## Service URLs
 
@@ -339,9 +336,13 @@ Observation: after ~24h, `amd64` nodes crashed while `arm64` nodes survived. `am
 
 For a fair comparison, align across all nodes: same DB backend (`keyvalue.datasource`), same allocator (jemalloc actually loaded), and the same JVM/logging flags (`FLUSH_BLOCKS`, `DEFAULT_JVM_OPTS`, log level) — several of these were aligned in `docker-compose.rskj.yml`.
 
-Update: all four miners now run **RocksDB** (`miner2`'s `-Dkeyvalue.datasource=leveldb` was removed and its volume re-cloned from a RocksDB node), so the DB-backend confound is gone for the current miner set. The one intentional outlier is `rskj-miner4`, the untuned baseline (no `MALLOC_CONF`, default block cache, default `WIRE_DELAY`).
+Update: all four miners now run **RocksDB** (`miner2`'s `-Dkeyvalue.datasource=leveldb` was removed and its volume re-cloned from a RocksDB node), so the DB-backend confound is gone for the current miner set.
+
+Further update: jemalloc preloading itself was later **removed entirely** from `rsk/Dockerfile` (no `libjemalloc2` install, no `LD_PRELOAD`, no `ENABLE_JEMALLOC`) — so point 2's "now arch-aware" fix is itself superseded; every container runs glibc malloc today, and `MALLOC_CONF` is a no-op wherever it's still set. `rskj-miner4` is also no longer a distinct "untuned baseline" (see "Node-specific notes" above). This whole section documents a past analysis under a config that has since changed twice — useful for the reasoning, not for what's currently running.
 
 ## RSKj Sync Architecture & Optimization
+
+> **Status: not present in the current `repos/rskj` checkout.** This section documents a custom rewrite (parallel multi-peer header/body sync) that lived on the `rats-blocksize-stress-SNAPSHOT` branch. `.gitmodules` now tracks `repos/rskj` at `branch = master`, and there is no `maxConcurrentHeaderRequests` anywhere in the current checkout (`grep -r maxConcurrentHeaderRequests repos/rskj` returns nothing). Kept as a design reference in case this work is revived — don't assume any of it is live without checking.
 
 This applies to the `repos/rskj` submodule (consensus-critical Java; built in Docker, not on the host — there is no local JVM, so changes must be compiled/tested via the Docker image build or CI).
 
