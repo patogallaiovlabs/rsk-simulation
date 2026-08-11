@@ -1,5 +1,6 @@
 # CLAUDE.md
 
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Overview
@@ -98,16 +99,15 @@ The image is a multi-stage build: it compiles RSKj from the `repos/rskj` git sub
 
 ### Configuration: Changing Gas Limit
 
-When changing `BLOCK_GAS_LIMIT`, the genesis file mount must match. In `docker-compose.rskj.yml`:
+The entire `./rsk/genesis/` folder is bind-mounted into every container at `/var/lib/rsk/genesis/`. To switch the genesis file, only the `GENESIS_FILE` env var needs to change — no volume rewiring required. Available files: `genesis_7M.json`, `genesis_10M.json`, `genesis_17M.json`, `genesis_25M.json`, `genesis_50M.json`, `genesis_80M.json`, `genesis_360M.json`.
 
 ```yaml
 environment:
   - BLOCK_GAS_LIMIT=25000000
-volumes:
-  - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+  - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
 ```
 
-After any env/volume change: `docker compose -f docker-compose.rskj.yml up -d --force-recreate`
+After any env change: `docker compose -f docker-compose.rskj.yml up -d --force-recreate`
 
 ### Configuration: per-node RocksDB block cache (`SHARED_BLOCK_CACHE_SIZE`)
 

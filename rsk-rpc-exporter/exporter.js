@@ -20,6 +20,42 @@ const pendingTransactions = new Gauge({
     labelNames: ['node'],
 });
 
+const queuedTransactions = new Gauge({
+    name: 'rsk_txpool_queued_transactions',
+    help: 'Number of queued (not-yet-executable) transactions in the mempool',
+    labelNames: ['node'],
+});
+
+const wireProtocolQueueSize = new Gauge({
+    name: 'rsk_wire_protocol_queue_size',
+    help: 'Number of inbound P2P wire messages (blocks/txs/status/headers/bodies) waiting to be processed by NodeMessageHandler',
+    labelNames: ['node'],
+});
+
+const wireProtocolQueueByType = new Gauge({
+    name: 'rsk_wire_protocol_queue_by_type',
+    help: 'Inbound P2P wire messages waiting to be processed, broken down by MessageType (debug_wireProtocolQueueSizeByType)',
+    labelNames: ['node', 'type'],
+});
+
+const bestBlockNumber = new Gauge({
+    name: 'rsk_best_block_number',
+    help: 'Best block number seen by the node (eth_blockNumber)',
+    labelNames: ['node'],
+});
+
+const peerCount = new Gauge({
+    name: 'rsk_peer_count',
+    help: 'Number of connected peers (net_peerCount)',
+    labelNames: ['node'],
+});
+
+const syncing = new Gauge({
+    name: 'rsk_syncing',
+    help: 'Whether the node is syncing (1) or fully synced (0), from eth_syncing',
+    labelNames: ['node'],
+});
+
 const nmtMetric = new Gauge({
     name: 'rsk_jvm_nmt_bytes',
     help: 'JVM Native Memory Tracking metrics in bytes',
@@ -51,6 +87,12 @@ const heapClassObjectsBytes = new Gauge({
 });
 
 register.registerMetric(pendingTransactions);
+register.registerMetric(queuedTransactions);
+register.registerMetric(wireProtocolQueueSize);
+register.registerMetric(wireProtocolQueueByType);
+register.registerMetric(bestBlockNumber);
+register.registerMetric(peerCount);
+register.registerMetric(syncing);
 register.registerMetric(nmtMetric);
 register.registerMetric(heapObjectsCount);
 register.registerMetric(heapObjectsBytes);
@@ -113,23 +155,78 @@ function convertToBytes(value, unit) {
 
 // --- Main Cycles ---
 
+async function rpcCall(url, method, params = []) {
+    const response = await axios.post(url, {
+        jsonrpc: '2.0',
+        method,
+        params,
+        id: 1,
+    }, { timeout: 2000 });
+    return response.data ? response.data.result : undefined;
+}
+
 async function updateRPCMetrics() {
+    // Message types come and go, so clear stale label sets before repopulating.
+    wireProtocolQueueByType.reset();
+
     for (const url of rpcUrls) {
         const nodeName = url.split('//')[1].split(':')[0];
-        try {
-            const response = await axios.post(url, {
-                jsonrpc: '2.0',
-                method: 'txpool_status',
-                params: [],
-                id: 1,
-            }, { timeout: 2000 });
 
-            if (response.data && response.data.result) {
-                const pending = parseInt(response.data.result.pending, 16);
-                pendingTransactions.set({ node: nodeName }, pending);
+        try {
+            const status = await rpcCall(url, 'txpool_status');
+            if (status) {
+                pendingTransactions.set({ node: nodeName }, parseInt(status.pending, 16));
+                queuedTransactions.set({ node: nodeName }, parseInt(status.queued, 16));
             }
         } catch (error) {
             // Ignore RPC errors for now to keep logs clean during startup
+        }
+
+        try {
+            const queueSize = await rpcCall(url, 'debug_wireProtocolQueueSize');
+            if (queueSize !== undefined && queueSize !== null) {
+                wireProtocolQueueSize.set({ node: nodeName }, parseInt(queueSize, 16));
+            }
+        } catch (error) {
+            // debug module may be disabled on some nodes; ignore
+        }
+
+        try {
+            // Returns a JSON object { MESSAGE_TYPE: count, ... } with decimal counts.
+            const byType = await rpcCall(url, 'debug_wireProtocolQueueSizeByType');
+            if (byType && typeof byType === 'object') {
+                for (const [type, count] of Object.entries(byType)) {
+                    wireProtocolQueueByType.set({ node: nodeName, type }, Number(count));
+                }
+            }
+        } catch (error) {
+            // debug module may be disabled on some nodes; ignore
+        }
+
+        try {
+            const blockNumber = await rpcCall(url, 'eth_blockNumber');
+            if (blockNumber !== undefined && blockNumber !== null) {
+                bestBlockNumber.set({ node: nodeName }, parseInt(blockNumber, 16));
+            }
+        } catch (error) {
+            // Ignore RPC errors
+        }
+
+        try {
+            const peers = await rpcCall(url, 'net_peerCount');
+            if (peers !== undefined && peers !== null) {
+                peerCount.set({ node: nodeName }, parseInt(peers, 16));
+            }
+        } catch (error) {
+            // Ignore RPC errors
+        }
+
+        try {
+            // eth_syncing returns `false` when synced, or an object with sync progress otherwise
+            const syncStatus = await rpcCall(url, 'eth_syncing');
+            syncing.set({ node: nodeName }, syncStatus === false ? 0 : 1);
+        } catch (error) {
+            // Ignore RPC errors
         }
     }
 }

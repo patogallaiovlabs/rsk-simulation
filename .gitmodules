@@ -1,7 +1,7 @@
 [submodule "repos/rskj"]
 	path = repos/rskj
 	url = git@github.com:patogallaiovlabs/rskj.git
-	branch = rats-blocksize-stress
+	branch = master
 [submodule "repos/stats-backend"]
 	path = repos/stats-backend
 	url = git@github.com:patogallaiovlabs/stats-backend.git
@@ -11,4 +11,4 @@
 [submodule "repos/rskj-k6-tests"]
 	path = repos/rskj-k6-tests
 	url = git@github.com:patogallaiovlabs/rskj-k6-tests.git
-	branch = rats-blocksize-stress
+	branch = main

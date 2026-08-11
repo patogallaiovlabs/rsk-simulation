@@ -17,13 +17,10 @@ services:
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
-      - SHARED_BLOCK_CACHE_SIZE=1M
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
       - FLUSH_BLOCKS=${FLUSH_BLOCKS:-10}
-      - MALLOC_CONF=dirty_decay_ms:5000,muzzy_decay_ms:5000,tcache:true,background_thread:true,narenas:4
-      - DEFAULT_JVM_OPTS=-Xms3G -Xmx3G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary
-      # miner1 only: LZ4-compress the receipts RocksDB (per-DB override of rsk.conf via -D system prop)
-      - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/ -Ddatabase.rocksdb.compressionType.receipts=lz4
+      - DEFAULT_JVM_OPTS=-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary
+      - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/
       - RSKJ_LOG_PROPS=-Dlogback.configurationFile=/var/lib/rsk/logback.xml -Dlogging.stdout=INFO -Dlogging.file=INFO -Dlogging=INFO
     ports:
       - "50501:50501"
@@ -33,7 +30,7 @@ services:
       - "9501:8080"
     volumes:
       - rskj-data-miner1:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:
@@ -42,8 +39,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 5G
+          cpus: '2.0'
+          memory: 6G
 
   rskj-miner2:
     platform: linux/arm64
@@ -61,12 +58,9 @@ services:
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
-      # Matches miner4: no shared block cache, no compression override, jemalloc disabled
-      - ENABLE_JEMALLOC=false
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
       - FLUSH_BLOCKS=${FLUSH_BLOCKS:-10}
-      - MALLOC_CONF=dirty_decay_ms:5000,muzzy_decay_ms:5000,tcache:true,background_thread:true,narenas:4
-      - DEFAULT_JVM_OPTS=-Xms3G -Xmx3G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary
+      - DEFAULT_JVM_OPTS=-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary
       - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/
       - RSKJ_LOG_PROPS=-Dlogback.configurationFile=/var/lib/rsk/logback.xml -Dlogging.stdout=INFO -Dlogging.file=INFO -Dlogging=INFO
     ports:
@@ -77,7 +71,7 @@ services:
       - "9502:8080"
     volumes:
       - rskj-data-miner2:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:
@@ -86,8 +80,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 5G
+          cpus: '2.0'
+          memory: 6G
 
   rskj-miner3:
     platform: linux/arm64
@@ -105,13 +99,10 @@ services:
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
-      - SHARED_BLOCK_CACHE_SIZE=1G
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
       - FLUSH_BLOCKS=${FLUSH_BLOCKS:-10}
-      - MALLOC_CONF=dirty_decay_ms:5000,muzzy_decay_ms:5000,tcache:true,background_thread:true,narenas:4
-      - DEFAULT_JVM_OPTS=-Xms3G -Xmx3G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary
-      # miner3 only: LZ4-compress ALL RocksDBs (default per-DB compression override of rsk.conf via -D system prop)
-      - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/ -Ddatabase.rocksdb.compressionType.default=lz4
+      - DEFAULT_JVM_OPTS=-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary
+      - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/
       - RSKJ_LOG_PROPS=-Dlogback.configurationFile=/var/lib/rsk/logback.xml -Dlogging.stdout=INFO -Dlogging.file=INFO -Dlogging=INFO
     ports:
       - "50503:50503"
@@ -121,7 +112,7 @@ services:
       - "9503:8080"
     volumes:
       - rskj-data-miner3:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:
@@ -130,12 +121,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 5G
+          cpus: '2.0'
+          memory: 6G
 
-  # Clean baseline miner: no OS/DB tuning (MALLOC_CONF, SHARED_BLOCK_CACHE_SIZE)
-  # and no JMX/wire overrides — everything falls back to the image defaults.
-  # Only the JVM opts, sys props, and log props are kept.
   rskj-miner4:
     platform: linux/arm64
     build:
@@ -148,22 +136,24 @@ services:
       - MINER_ID=4
       - IS_MINER=true
       - ENABLE_JMX=true
-      # Baseline node: use the glibc allocator (no jemalloc preload)
-      - ENABLE_JEMALLOC=false
+      - JMX_PORT=9104
+      - JMX_HOSTNAME=127.0.0.1
+      - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - FLUSH_BLOCKS=${FLUSH_BLOCKS:-1000}
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
-      - DEFAULT_JVM_OPTS=-Xms3G -Xmx3G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
+      - FLUSH_BLOCKS=${FLUSH_BLOCKS:-10}
+      - DEFAULT_JVM_OPTS=-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary
       - RSKJ_SYS_PROPS=-Drsk.conf.file=/var/lib/rsk/rsk.conf -Dlogging.dir=test/local-regtest/
       - RSKJ_LOG_PROPS=-Dlogback.configurationFile=/var/lib/rsk/logback.xml -Dlogging.stdout=INFO -Dlogging.file=INFO -Dlogging=INFO
     ports:
       - "50504:50504"
       - "4450:4444"
       - "4451:4445"
+      - "9104:9104"
       - "9504:8080"
     volumes:
       - rskj-data-miner4:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:
@@ -172,7 +162,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: '2.0'
           memory: 5G
 
   rskj-node1:
@@ -195,7 +185,7 @@ services:
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
       - SHARED_BLOCK_CACHE_SIZE=1M
       - FLUSH_BLOCKS=${FLUSH_BLOCKS:-100}
       - MALLOC_CONF=dirty_decay_ms:5000,muzzy_decay_ms:5000,tcache:true,background_thread:true,narenas:4
@@ -210,7 +200,7 @@ services:
       - "9505:8080"
     volumes:
       - rskj-data-node1:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:
@@ -242,7 +232,7 @@ services:
       - JMX_HOSTNAME=127.0.0.1
       - WIRE_DELAY=0
       - BLOCK_GAS_LIMIT=25000000
-      - GENESIS_FILE=/var/lib/rsk/genesis.json
+      - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
       - SHARED_BLOCK_CACHE_SIZE=1M
       - FLUSH_BLOCKS=${FLUSH_BLOCKS:-100}
       - MALLOC_CONF=dirty_decay_ms:5000,muzzy_decay_ms:5000,tcache:true,background_thread:true,narenas:4
@@ -257,7 +247,7 @@ services:
       - "9506:8080"
     volumes:
       - rskj-data-node2:/var/lib/rsk
-      - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+      - ./rsk/genesis:/var/lib/rsk/genesis
       - ./rsk/rsk.conf:/var/lib/rsk/rsk.conf
       - ./rsk/logback.xml:/var/lib/rsk/logback.xml
     labels:

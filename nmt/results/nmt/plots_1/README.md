@@ -1,6 +1,6 @@
 # RSKj Simulation Results Summary
 
-Generated on: 2026-08-11 15:53:28
+Generated on: 2026-07-22 18:35:48
 
 This directory contains Native Memory Tracking (NMT) plots and a summary of the node configurations used during the simulation.
 
@@ -15,9 +15,9 @@ RocksDB columns are derived from `SHARED_BLOCK_CACHE_SIZE` and the `-Ddatabase.r
 
 | Node | Role | CPU Limit | Memory Limit | JVM Options | Flush Blocks | Jemalloc | Shared Block Cache | DB Compression |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **rskj-miner1** | ⛏️ Miner | 2.0 | 6G | `-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
-| **rskj-miner2** | ⛏️ Miner | 2.0 | 6G | `-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
-| **rskj-miner3** | ⛏️ Miner | 2.0 | 6G | `-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
-| **rskj-miner4** | ⛏️ Miner | 2.0 | 5G | `-Xms4G -Xmx4G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
+| **rskj-miner1** | ⛏️ Miner | 2.0 | 5G | `-Xms3G -Xmx3G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
+| **rskj-miner2** | ⛏️ Miner | 2.0 | 5G | `-Xms3G -Xmx3G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
+| **rskj-miner3** | ⛏️ Miner | 2.0 | 5G | `-Xms3G -Xmx3G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
+| **rskj-miner4** | ⛏️ Miner | 2.0 | 5G | `-Xms3G -Xmx3G -XX:NativeMemoryTracking=summary` | 10 | enabled | not set | none |
 | **rskj-node1** | 🔗 Node | 2.0 | 6G | `-Xms4G -Xmx4G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary` | 100 | enabled | 1M | none |
 | **rskj-node2** | 🔗 Node | 2.0 | 6G | `-Xms4G -Xmx4G -XX:MaxDirectMemorySize=512M -XX:MaxMetaspaceSize=256m -XX:CompressedClassSpaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:NativeMemoryTracking=summary` | 100 | enabled | 1M | none |

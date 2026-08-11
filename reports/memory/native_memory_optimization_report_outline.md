@@ -24,7 +24,7 @@
 
 - **5. Recommendations for Deployment** — Table sizing RocksDB cache against system RAM and JVM heap for different node roles.
 
-- **6. Conclusion (Executive Summary for CTO)** — High-level wrap-up: footprint stabilized, ~1GB waste eliminated, OOM wall removed, ready to scale.
+- **6. Conclusion (Executive Summary for CTO)** — High-level wrap-up: footprint stabilized, the RocksDB cache is no longer unbounded, OOM wall removed, ready to scale.
 
 - **7. Future Work: CPU vs. Memory as the Next Bottleneck** — States the hypothesis only: now that native memory is bounded and no longer scales with block size, CPU (not memory) is the likely bottleneck for larger blocks, so future scaling work should focus on CPU. (Hypothesis to be validated; no detailed data here.)
 

@@ -53,7 +53,7 @@
     <logger name="execute" level="OFF"/>
     <logger name="blockvalidator" level="INFO"/>
     <logger name="blockexecutor" level="ERROR"/>
-    <logger name="general" level="INFO"/>
+    <logger name="general" level="DEBUG"/>
     <logger name="gaspricetracker" level="ERROR"/>
     <logger name="web3" level="INFO"/>
     <logger name="repository" level="INFO"/>
