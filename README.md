@@ -12,7 +12,7 @@ The simulation includes:
 
 The project follows a modular architecture, allowing you to run different components independently:
 
-- **RSK Network (`docker-compose.rskj.yml`)**: The core of the simulation, consisting of 4 miners and 2 regular nodes.
+- **RSK Network (`docker-compose.rskj.yml`)**: The core of the simulation, consisting of 4 miners (`rskj-miner1..4`, started by default) and 2 regular nodes (`rskj-node1`/`rskj-node2`, defined but disabled by default — start them with `docker compose -f docker-compose.rskj.yml --profile disabled up -d`).
 - **Monitoring Stack (`docker-compose.tools.yml`)**: Infrastructure visibility using Prometheus (metrics), Loki (logs), and Grafana (dashboards). It provides metrics for both hardware usage and node performance (e.g., block processing time).
 - **Stats Dashboard (`docker-compose.stats.yml`)**: Real-time network status visualization using the RSK Stats dashboard and agents.
 
@@ -117,11 +117,12 @@ The block gas limit can be adjusted using the `BLOCK_GAS_LIMIT` environment vari
 3. Apply changes (see below).
 
 ### 2. Custom Genesis Files
-The network uses different genesis files to simulate various scenarios. You can swap them by updating the volume mount in `docker-compose.rskj.yml`:
+The network uses different genesis files to simulate various scenarios. The entire `./rsk/genesis/` folder is bind-mounted into every container, so swapping genesis files only requires changing the `GENESIS_FILE` environment variable in `docker-compose.rskj.yml` — no volume rewiring needed:
 ```yaml
-volumes:
-  - ./rsk/genesis/genesis_25M.json:/var/lib/rsk/genesis.json
+environment:
+  - GENESIS_FILE=/var/lib/rsk/genesis/genesis_25M.json
 ```
+Available files: `genesis_7M.json`, `genesis_10M.json`, `genesis_17M.json`, `genesis_25M.json`, `genesis_50M.json`, `genesis_80M.json`, `genesis_360M.json`.
 
 ### 3. Network Latency (`WIRE_DELAY`)
 Each RSKj node can have a simulated network delay (in milliseconds) using the `WIRE_DELAY` environment variable. This simulates the time it takes for messages to travel between nodes.
@@ -131,10 +132,10 @@ environment:
 ```
 
 ### 4. Resource Constraints
-Each node is limited to **1 CPU** and **4GB RAM** by default in `docker-compose.rskj.yml`. You can adjust these in the `deploy.resources.limits` section of each service.
+Each miner is currently limited to **2 CPUs** and **5-6GB RAM** by default in `docker-compose.rskj.yml` (varies slightly per service). You can adjust these in the `deploy.resources.limits` section of each service.
 
 ### 5. Blockchain Flush Interval (`FLUSH_BLOCKS`)
-You can control how often the blockchain state is flushed to disk (in number of blocks) using the `FLUSH_BLOCKS` environment variable. The default is **100**.
+You can control how often the blockchain state is flushed to disk (in number of blocks) using the `FLUSH_BLOCKS` environment variable. The default is **10** for the miners (`rskj-miner1..4`) and **100** for the disabled `rskj-node1`/`rskj-node2`.
 ```yaml
 environment:
   - FLUSH_BLOCKS=50
