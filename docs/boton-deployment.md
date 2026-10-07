@@ -81,7 +81,7 @@ image. That is no longer true: this machine has JDK 17, rskj targets Java 17, an
 `:rskj-core:fatJar` produces exactly the artifact the box needs in **~20 seconds**.
 
 ```bash
-scripts/boton/build-jar.sh ri_fixleak /tmp/rsk-tip.jar
+scripts/boton/build-jar.sh block-processing-perf /tmp/rsk-tip.jar
 scripts/boton/build-jar.sh 47a2eb63a  /tmp/rsk-baseline.jar
 ```
 

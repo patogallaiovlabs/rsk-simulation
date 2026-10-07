@@ -2,7 +2,7 @@
 # Build an RSKj fat jar locally (no Docker) from a git ref in repos/rskj.
 #
 #   scripts/boton/build-jar.sh <git-ref> <output.jar>
-#   scripts/boton/build-jar.sh ri_fixleak   /tmp/rsk-tip.jar
+#   scripts/boton/build-jar.sh block-processing-perf   /tmp/rsk-tip.jar
 #   scripts/boton/build-jar.sh 47a2eb63a    /tmp/rsk-baseline.jar
 #
 # Builds the current checkout in place when <git-ref> is already HEAD; otherwise

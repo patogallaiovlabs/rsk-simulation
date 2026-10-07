@@ -46,7 +46,7 @@ a different population of blocks and produce a phantom regression when pooled.
 
 ## Where to run from
 
-- Repo: `repos/rskj`, branch **`ri_fixleak`**, HEAD `392ae5506`. `47a2eb63a` is an
+- Repo: `repos/rskj`, branch **`block-processing-perf`**, HEAD `392ae5506`. `47a2eb63a` is an
   ancestor of it, so both arms build from this branch; do not switch branches.
 - `rskj-core/build.gradle` carries an **uncommitted local change** (the `mavenLocal()`
   content filter). Leave it in place. Without it dependency verification fails on

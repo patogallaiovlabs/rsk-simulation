@@ -4,7 +4,7 @@
 thread, so `onBestBlockMs` p95 falls to approximately its p50 (currently 0 ms) instead of
 sitting 6–9× above the mean.
 
-**Repo.** `repos/rskj`. Current tip `392ae5506` (branch `ri_fixleak`) is the **baseline for
+**Repo.** `repos/rskj`. Current tip `392ae5506` (branch `block-processing-perf`) is the **baseline for
 this work** — the async-datasource and concurrent-flush changes are already in it.
 
 ---
