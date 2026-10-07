@@ -19,11 +19,11 @@ boton,mainnet,totalMs,8,-46.65,8,8,0.0078,True,significant
 boton,mainnet,executeMs,8,-7.85,8,8,0.0078,True,significant
 boton,mainnet,saveReceiptsMs,8,-94.45,8,8,0.0078,True,significant
 boton,mainnet,txExecutionMs,8,-0.7,5,8,0.7266,False,direction only
-boton,mainnetprobe,totalMs,5,-42.6,5,5,0.0625,False,direction only
-boton,mainnetprobe,preambleMs,5,-100.0,5,5,0.0625,False,direction only
-boton,mainnetprobe,executeMs,5,-5.6,5,5,0.0625,False,direction only
-boton,mainnetprobe,saveReceiptsMs,5,-94.1,5,5,0.0625,False,direction only
-boton,mainnetprobe,txExecutionMs,5,0.2,2,5,1.0,False,direction only
+boton,mainnetprobe,totalMs,7,-42.6,7,7,0.0156,True,significant
+boton,mainnetprobe,preambleMs,7,-100.0,7,7,0.0156,True,significant
+boton,mainnetprobe,executeMs,7,-5.6,6,7,0.125,False,direction only
+boton,mainnetprobe,saveReceiptsMs,7,-94.1,7,7,0.0156,True,significant
+boton,mainnetprobe,txExecutionMs,7,0.2,3,7,1.0,False,direction only
 boton,storagereads,totalMs,7,-58.2,6,7,0.125,False,direction only
 boton,storagereads,executeMs,7,0.0,0,2,0.5,False,direction only
 boton,storagereads,saveReceiptsMs,7,-100.0,6,6,0.0312,True,significant

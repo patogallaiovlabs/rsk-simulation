@@ -306,11 +306,13 @@ measured.
 
 ## Result
 
-| metric | median | cycles | sign p |
-|---|---|---|---|
-| **preambleMs** | **-100.0%** | 5 | 0.0625 |
-| totalMs | -42.6% | 5 | 0.0625 |
-| saveReceiptsMs | -94.1% | 5 | 0.0625 |
+| metric | median | cycles | sign p | |
+|---|---|---|---|---|
+| **preambleMs** | **-100.0%** | 7 | **0.016** | significant |
+| totalMs | -42.6% | 7 | **0.016** | significant |
+| saveReceiptsMs | -94.1% | 7 | **0.016** | significant |
+
+All three unanimous across 7 cycles. §4.2 is claimable.
 
 Tip's preamble p50 is **0.0ms in all ten slots**; baseline+probe is 2-7ms and never
 zero. The fix removes the cost rather than reducing it. Absolute p50 per cycle
@@ -324,9 +326,8 @@ the check that the probe build behaves like the baseline it came from.
 
 - **Do not pool `mainnetprobe` with `mainnet`.** Different baseline build. They are
   separate experiments that happen to share a workload.
-- **Do not quote it as significant yet** unless `cycles` reads 6 or more — 5 unanimous
-  cycles is p=0.0625. Two further cycles were running at the time of writing; regenerate
-  and re-check the `claimable` column before quoting.
+- It reached **7 cycles, p=0.016**, so it IS quotable now — but still as its own
+  experiment against baseline+probe, never pooled with `mainnet`.
 - **Do not read `totalMs` from a single slot.** The same build measured 147-153ms on one
   box and 256-261ms on the other in the same cycles. Only the box-cancelled combined
   estimate is meaningful; this is the 45% box term, not a build effect.
