@@ -1,0 +1,26 @@
+scenario,box,build,gas_limit_m,cycles,mean_util,totalMs_p50,totalMs_p95,totalMs_max,us_per_Mgas,pct_of_10s_interval_p95,curve_points,curve_claimable,gas_growth_x,time_growth_x,linearity
+blockfiller,local,392ae5506,7,6,0.9965,10.0,32.0,69.0,1428.6,0.32,4,yes,,,
+blockfiller,local,392ae5506,10,6,0.9917,14.0,42.0,89.5,1400.0,0.42,4,yes,,,
+blockfiller,local,392ae5506,17,6,0.9677,26.0,62.5,93.5,1529.4,0.62,4,yes,,,
+blockfiller,local,392ae5506,25,5,0.8398,43.0,103.0,145.0,1720.0,1.03,4,yes,3.57,4.3,SUPER-LINEAR
+calldata,us-west,392ae5506,17,4,0.8513,38.0,100.5,168.5,2235.3,1.0,2,slope only (2 points),,,
+calldata,us-west,392ae5506,25,5,0.8726,63.0,140.0,198.0,2520.0,1.4,2,slope only (2 points),1.47,1.66,linear
+ecdsa,us-east,392ae5506,7,6,0.9397,114.0,240.0,438.5,16285.7,2.4,4,yes,,,
+ecdsa,us-east,392ae5506,10,6,0.9507,177.0,388.0,642.0,17700.0,3.88,4,yes,,,
+ecdsa,us-east,392ae5506,17,6,0.9628,333.0,743.0,1036.5,19588.2,7.43,4,yes,,,
+ecdsa,us-east,392ae5506,25,6,0.9525,509.0,1006.0,1710.0,20360.0,10.06,4,yes,3.57,4.46,SUPER-LINEAR
+ecdsa,us-east,47a2eb63a,7,6,0.9494,144.5,547.5,954.0,20642.9,5.47,4,yes,,,
+ecdsa,us-east,47a2eb63a,10,6,0.9448,240.8,555.0,1087.5,24075.0,5.55,4,yes,,,
+ecdsa,us-east,47a2eb63a,17,6,0.9578,447.2,1098.5,1675.5,26308.8,10.98,4,yes,,,
+ecdsa,us-east,47a2eb63a,25,6,0.9709,719.2,1601.5,2642.5,28770.0,16.02,4,yes,3.57,4.98,SUPER-LINEAR
+mainnet,us-west,392ae5506,7,5,0.9238,17.0,59.0,89.0,2428.6,0.59,4,yes,,,
+mainnet,us-west,392ae5506,10,6,0.9442,25.8,74.5,136.0,2575.0,0.74,4,yes,,,
+mainnet,us-west,392ae5506,17,6,0.9598,52.0,121.5,220.0,3058.8,1.22,4,yes,,,
+mainnet,us-west,392ae5506,25,6,0.9566,97.5,227.5,333.0,3900.0,2.27,4,yes,3.57,5.74,SUPER-LINEAR
+mainnet,us-west,47a2eb63a,7,6,0.92,23.0,459.5,1577.0,3285.7,4.59,4,yes,,,
+mainnet,us-west,47a2eb63a,10,6,0.9462,47.0,316.5,1073.5,4700.0,3.17,4,yes,,,
+mainnet,us-west,47a2eb63a,17,6,0.9584,88.8,322.5,1797.0,5220.6,3.23,4,yes,,,
+mainnet,us-west,47a2eb63a,25,6,0.9446,171.5,511.0,2298.0,6860.0,5.11,4,yes,3.57,7.46,SUPER-LINEAR
+storagereads,us-east,392ae5506,10,2,0.8394,5.5,56.5,88.0,550.0,0.56,3,yes,,,
+storagereads,us-east,392ae5506,17,1,0.8165,5.0,55.0,102.0,294.1,0.55,3,yes,,,
+storagereads,us-east,392ae5506,25,3,0.8226,6.5,54.0,76.0,260.0,0.54,3,yes,2.5,1.18,sub-linear

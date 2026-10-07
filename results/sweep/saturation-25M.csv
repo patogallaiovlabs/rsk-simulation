@@ -1,0 +1,3 @@
+host,gas_limit,option,mean_util,blocks_ge_90pct,blocks_total,verdict
+178.156.204.38,25000000,7,0.8963,37,41,MARGINAL
+5.78.115.226,25000000,14,0.9761,40,41,SATURATES

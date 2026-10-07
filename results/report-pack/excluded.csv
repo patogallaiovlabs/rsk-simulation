@@ -1,0 +1,17 @@
+track,scenario,cycle,what,reason,detail
+boton,indexer,1,bseq1-indexer-fwd/baseline,threshold 0.3 != 0.9,mean utilization 50% over 27 blocks — different block population
+boton,indexer,1,bseq1-indexer-fwd/tip,threshold 0.3 != 0.9,mean utilization 49% over 26 blocks — different block population
+boton,indexer,1,bseq1-indexer-rev/baseline,threshold 0.3 != 0.9,mean utilization 46% over 27 blocks — different block population
+boton,indexer,1,bseq1-indexer-rev/tip,threshold 0.3 != 0.9,mean utilization 52% over 29 blocks — different block population
+boton,indexer,2,bseq2-indexer-fwd/baseline,threshold 0.3 != 0.9,mean utilization 47% over 27 blocks — different block population
+boton,indexer,2,bseq2-indexer-fwd/tip,threshold 0.3 != 0.9,mean utilization 49% over 28 blocks — different block population
+boton,indexer,2,bseq2-indexer-rev/baseline,threshold 0.3 != 0.9,mean utilization 50% over 26 blocks — different block population
+boton,indexer,2,bseq2-indexer-rev/tip,threshold 0.3 != 0.9,mean utilization 49% over 28 blocks — different block population
+boton,indexer,3,bseq3-indexer-fwd/baseline,threshold 0.3 != 0.9,mean utilization 44% over 26 blocks — different block population
+boton,indexer,3,bseq3-indexer-fwd/tip,threshold 0.3 != 0.9,mean utilization 49% over 28 blocks — different block population
+boton,indexer,3,bseq3-indexer-rev/baseline,threshold 0.3 != 0.9,mean utilization 44% over 30 blocks — different block population
+boton,indexer,3,bseq3-indexer-rev/tip,threshold 0.3 != 0.9,mean utilization 45% over 31 blocks — different block population
+local,ecdsa,6,seq6-ecdsa-baseline,quarantined — concurrent workload,overlapped another running arm during the rotation switch; see results/local-ab/_quarantine/README.md
+local,ecdsa,6,seq6-ecdsa-tip,quarantined — concurrent workload,overlapped another running arm during the rotation switch; see results/local-ab/_quarantine/README.md
+local,indexer,6,seq6-indexer-baseline,quarantined — concurrent workload,overlapped another running arm during the rotation switch; see results/local-ab/_quarantine/README.md
+local,indexer,6,seq6-indexer-tip,quarantined — concurrent workload,overlapped another running arm during the rotation switch; see results/local-ab/_quarantine/README.md

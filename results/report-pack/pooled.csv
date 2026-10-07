@@ -1,0 +1,51 @@
+track,scenario,metric,cycles,median_delta_pct,tip_faster,non_tied,sign_p,significant_p05,claimable
+boton,blockfiller,totalMs,6,-35.9,6,6,0.0312,True,significant
+boton,blockfiller,executeMs,6,-10.3,6,6,0.0312,True,significant
+boton,blockfiller,saveReceiptsMs,6,-69.0,6,6,0.0312,True,significant
+boton,blockfiller,txExecutionMs,6,-15.15,6,6,0.0312,True,significant
+boton,calldata,totalMs,6,-32.0,6,6,0.0312,True,significant
+boton,calldata,executeMs,6,6.75,2,6,0.6875,False,direction only
+boton,calldata,saveReceiptsMs,6,-100.0,6,6,0.0312,True,significant
+boton,calldata,txExecutionMs,6,-38.0,6,6,0.0312,True,significant
+boton,ecdsa,totalMs,8,-10.55,8,8,0.0078,True,significant
+boton,ecdsa,executeMs,8,0.75,4,8,1.0,False,direction only
+boton,ecdsa,saveReceiptsMs,8,-97.2,8,8,0.0078,True,significant
+boton,ecdsa,txExecutionMs,8,0.4,4,8,1.0,False,direction only
+boton,indexer,totalMs,7,-28.9,7,7,0.0156,True,significant
+boton,indexer,executeMs,7,1.6,0,5,0.0625,False,direction only
+boton,indexer,saveReceiptsMs,7,-100.0,7,7,0.0156,True,significant
+boton,indexer,txExecutionMs,7,-4.7,7,7,0.0156,True,significant
+boton,mainnet,totalMs,8,-46.65,8,8,0.0078,True,significant
+boton,mainnet,executeMs,8,-7.85,8,8,0.0078,True,significant
+boton,mainnet,saveReceiptsMs,8,-94.45,8,8,0.0078,True,significant
+boton,mainnet,txExecutionMs,8,-0.7,5,8,0.7266,False,direction only
+boton,mainnetprobe,totalMs,5,-42.6,5,5,0.0625,False,direction only
+boton,mainnetprobe,preambleMs,5,-100.0,5,5,0.0625,False,direction only
+boton,mainnetprobe,executeMs,5,-5.6,5,5,0.0625,False,direction only
+boton,mainnetprobe,saveReceiptsMs,5,-94.1,5,5,0.0625,False,direction only
+boton,mainnetprobe,txExecutionMs,5,0.2,2,5,1.0,False,direction only
+boton,storagereads,totalMs,7,-58.2,6,7,0.125,False,direction only
+boton,storagereads,executeMs,7,0.0,0,2,0.5,False,direction only
+boton,storagereads,saveReceiptsMs,7,-100.0,6,6,0.0312,True,significant
+boton,storagereads,txExecutionMs,7,0.0,1,2,1.0,False,direction only
+local,blockfiller,totalMs,7,-35.14,7,7,0.0156,True,significant
+local,blockfiller,executeMs,7,-10.0,6,6,0.0312,True,significant
+local,blockfiller,saveReceiptsMs,7,-81.82,7,7,0.0156,True,significant
+local,blockfiller,txExecutionMs,7,-21.43,7,7,0.0156,True,significant
+local,calldata,totalMs,9,-4.17,6,8,0.2891,False,direction only
+local,calldata,executeMs,9,0.0,1,2,1.0,False,direction only
+local,calldata,txExecutionMs,9,-42.86,9,9,0.0039,True,significant
+local,ecdsa,totalMs,8,-0.2,4,6,0.6875,False,direction only
+local,ecdsa,executeMs,8,1.12,2,7,0.4531,False,direction only
+local,ecdsa,saveReceiptsMs,8,-100.0,8,8,0.0078,True,significant
+local,ecdsa,txExecutionMs,8,0.77,0,6,0.0312,True,significant
+local,indexer,totalMs,7,-6.25,6,6,0.0312,True,significant
+local,indexer,executeMs,7,0.0,3,4,0.625,False,direction only
+local,indexer,txExecutionMs,7,-33.33,7,7,0.0156,True,significant
+local,mainnet,totalMs,8,-6.5,7,8,0.0703,False,direction only
+local,mainnet,executeMs,8,-3.58,5,8,0.7266,False,direction only
+local,mainnet,saveReceiptsMs,8,-100.0,7,8,0.0703,False,direction only
+local,mainnet,txExecutionMs,8,-6.25,8,8,0.0078,True,significant
+local,storagereads,totalMs,7,-20.0,7,7,0.0156,True,significant
+local,storagereads,executeMs,7,25.0,0,7,0.0156,True,significant
+local,storagereads,txExecutionMs,7,0.0,0,0,,False,direction only
