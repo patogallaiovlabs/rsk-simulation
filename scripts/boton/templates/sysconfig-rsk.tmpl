@@ -1,0 +1,38 @@
+# RSKj regtest stress miner (MINER_ID=__MINER_ID__). Read by /lib/systemd/system/rsk.service
+# via EnvironmentFile, so the packaged unit file itself never changes.
+#
+# Flags mirror rsk/Dockerfile's entrypoint, so this node runs with the same settings
+# as a local docker miner, with ONE deliberate exception:
+#
+#   transaction.accountTxRateLimit.enabled=false
+#
+# The Dockerfile forces this to true, overriding rsk/rsk.conf which sets it false.
+# The per-account rate limiter throttles any scenario that submits at a flat high
+# rate from a handful of unlocked accounts: keccak-random-writes (10 VUs, 20 it/s)
+# had EVERY tx rejected with "account exceeds quota" and mined 300+ completely
+# empty blocks. mainnet-sim survives it only because it self-paces on mempool
+# depth. A saturation benchmark cannot measure anything through an artificial
+# submission throttle, so it is disabled here -- identically on every box. Heap is 4G on an 8GB box; regtest state starts empty, so
+# cache.states never approaches its max-elements cap.
+
+JAVA_OPTS=-server -Xms4G -Xmx4G -XX:NativeMemoryTracking=summary -XX:+UseG1GC \
+ -Drsk.conf.file=/etc/rsk/stress.conf \
+ -Dlogback.configurationFile=/etc/rsk/logback.xml \
+ -Dlogging.dir=/var/log/rsk/stress -Dlogging.stdout=OFF -Dlogging.file=INFO -Dlogging=INFO \
+ -Dkeyvalue.datasource=rocksdb -Ddatabase.dir=/var/lib/rsk/database \
+ -Dgenesis=/etc/rsk/genesis.json \
+ -Drpc.providers.web.cors=* -Drpc.providers.web.http.enabled=true \
+ -Drpc.providers.web.http.port=4444 -Drpc.providers.web.http.bind_address=0.0.0.0 \
+ -Drpc.providers.web.ws.enabled=true -Drpc.providers.web.ws.port=4445 \
+ -Dtransaction.accountTxRateLimit.enabled=false -Dsync.peer.count=20 \
+ -Dminer.server.enabled=true -Dminer.client.timedMine=true -Dminer.client.medianBlockTime=10s \
+ -Dminer.coinbase.secret=miner__MINER_ID__ \
+ -Dpeer.privateKey=AFF6A83FEFFF6FF0C9F6FFFE41F6FF10D9FFFF3F41FFCFBF41F6FF90DFFFFF9__MINER_ID__ \
+ -Dpeer.port=5050__MINER_ID__ \
+ -Dminer.server.skipPowValidation=true -Dwire.simulatedDelay=0 \
+ -DtxLoad.blockTargetGas=__GAS_LIMIT__ -DtxLoad.primaryTxGas=__GAS_LIMIT__ \
+ -Drpc.gasEstimationCap=__GAS_LIMIT__ -Dtargetgaslimit=__GAS_LIMIT__ \
+ -Dsystem.profiling.enabled=true -Dblockchain.flushNumberOfBlocks=10
+
+RSKJ_CLASS=co.rsk.Start
+RSKJ_OPTS=--regtest

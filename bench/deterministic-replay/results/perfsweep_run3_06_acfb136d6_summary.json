@@ -1,0 +1,101 @@
+{
+  "gas_limit": 25000000,
+  "threshold": 0.9,
+  "qualifying_blocks": 1027,
+  "total_connect_records": 1158,
+  "gas_utilization_mean": 0.9816440153846153,
+  "per_block": {
+    "totalMs": {
+      "n": 1027,
+      "mean": 50.178188899707884,
+      "p50": 47.0,
+      "p95": 76.69999999999993
+    },
+    "executeMs": {
+      "n": 1027,
+      "mean": 27.003894839337878,
+      "p50": 25.0,
+      "p95": 41.0
+    },
+    "initialValidationMs": {
+      "n": 1027,
+      "mean": 14.933787731256086,
+      "p50": 15.0,
+      "p95": 18.0
+    },
+    "postExecuteValidationMs": {
+      "n": 1027,
+      "mean": 0.0759493670886076,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "stateRootRegisterMs": {
+      "n": 1027,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "saveReceiptsMs": {
+      "n": 1027,
+      "mean": 1.9698149951314508,
+      "p50": 2.0,
+      "p95": 4.0
+    },
+    "onBestBlockMs": {
+      "n": 1027,
+      "mean": 1.7857838364167478,
+      "p50": 0.0,
+      "p95": 14.0
+    },
+    "onBlockMs": {
+      "n": 1027,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "switchChainMs": {
+      "n": 1027,
+      "mean": 1.5160662122687438,
+      "p50": 1.0,
+      "p95": 6.0
+    },
+    "txExecutionMs": {
+      "n": 1027,
+      "mean": 15.39143135345667,
+      "p50": 14.0,
+      "p95": 23.0
+    },
+    "statePersistMs": {
+      "n": 1027,
+      "mean": 11.104186952288218,
+      "p50": 10.0,
+      "p95": 19.0
+    }
+  },
+  "global": {
+    "trie_cache_commit.durationMs": {
+      "n": 1087,
+      "mean": 9.18491260349586,
+      "p50": 8.0,
+      "p95": 16.700000000000045
+    },
+    "trie_cache_save.commitMs": {
+      "n": 1158,
+      "mean": 8.658031088082902,
+      "p50": 8.0,
+      "p95": 16.0
+    },
+    "trie_cache_save.trieSaveMs": {
+      "n": 1158,
+      "mean": 1.0829015544041452,
+      "p50": 1.0,
+      "p95": 2.0
+    },
+    "trie_cache_save.totalMs": {
+      "n": 1158,
+      "mean": 10.18307426597582,
+      "p50": 10.0,
+      "p95": 18.0
+    }
+  }
+}

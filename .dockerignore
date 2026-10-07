@@ -1,0 +1,32 @@
+# Build context for rsk/Dockerfile (the only build using context ".").
+#
+# Allowlist, because the repo root holds ~4.5 GB the image build never reads
+# (grafana/, bench/, .venv/, nogit/, docker volumes) and every per-node rebuild
+# would otherwise transfer all of it.
+#
+# rsk/Dockerfile reads exactly three paths from the context:
+#   repos/rskj   -> compiled by Gradle inside the image
+#   rsk/         -> genesis files, rsk.conf, logback.xml, jmx agent + config
+#   m2/          -> locally built co.rsk:native SNAPSHOT (stage_native_snapshot.sh)
+# If you add a COPY to the Dockerfile, allowlist its source here too.
+#
+# The stats/tools stacks build from subdirectory contexts, so this file does not
+# affect them.
+*
+
+!repos/rskj
+!rsk
+!m2
+
+# Untracked runtime data and build output inside repos/rskj. Gradle runs
+# `clean build` in the image, so none of this is needed -- and test/ alone is
+# ~1.4 GB of regtest database.
+repos/rskj/test
+repos/rskj/logs
+repos/rskj/build
+repos/rskj/.gradle
+repos/rskj/**/build
+repos/rskj/.git
+
+# Never useful in an image build.
+**/.DS_Store

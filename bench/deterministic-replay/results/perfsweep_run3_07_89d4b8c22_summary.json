@@ -1,0 +1,107 @@
+{
+  "gas_limit": 25000000,
+  "threshold": 0.9,
+  "qualifying_blocks": 1027,
+  "total_connect_records": 1158,
+  "gas_utilization_mean": 0.9816440153846153,
+  "per_block": {
+    "totalMs": {
+      "n": 1027,
+      "mean": 49.77312560856865,
+      "p50": 46.0,
+      "p95": 77.0
+    },
+    "executeMs": {
+      "n": 1027,
+      "mean": 26.390457643622202,
+      "p50": 24.0,
+      "p95": 42.0
+    },
+    "initialValidationMs": {
+      "n": 1027,
+      "mean": 15.046738072054527,
+      "p50": 15.0,
+      "p95": 20.0
+    },
+    "postExecuteValidationMs": {
+      "n": 1027,
+      "mean": 0.07497565725413827,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "stateRootRegisterMs": {
+      "n": 1027,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "saveReceiptsMs": {
+      "n": 1027,
+      "mean": 2.1197663096397275,
+      "p50": 2.0,
+      "p95": 4.0
+    },
+    "onBestBlockMs": {
+      "n": 1027,
+      "mean": 1.8471275559883156,
+      "p50": 0.0,
+      "p95": 15.0
+    },
+    "onBlockMs": {
+      "n": 1027,
+      "mean": 0.0009737098344693282,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "switchChainMs": {
+      "n": 1027,
+      "mean": 1.436222005842259,
+      "p50": 1.0,
+      "p95": 4.0
+    },
+    "txExecutionMs": {
+      "n": 1027,
+      "mean": 15.645569620253164,
+      "p50": 14.0,
+      "p95": 24.0
+    },
+    "statePersistMs": {
+      "n": 1027,
+      "mean": 10.218111002921129,
+      "p50": 9.0,
+      "p95": 19.0
+    }
+  },
+  "global": {
+    "trie_cache_commit.durationMs": {
+      "n": 1087,
+      "mean": 8.719411223551058,
+      "p50": 8.0,
+      "p95": 17.0
+    },
+    "trie_cache_save.commitMs": {
+      "n": 1158,
+      "mean": 8.22538860103627,
+      "p50": 8.0,
+      "p95": 16.0
+    },
+    "trie_cache_save.trieSaveMs": {
+      "n": 1158,
+      "mean": 0.7253886010362695,
+      "p50": 1.0,
+      "p95": 2.0
+    },
+    "trie_cache_save.totalMs": {
+      "n": 1158,
+      "mean": 9.41364421416235,
+      "p50": 9.0,
+      "p95": 18.0
+    },
+    "trie_store_save.durationMs": {
+      "n": 1159,
+      "mean": 0.7109577221742882,
+      "p50": 1.0,
+      "p95": 2.0
+    }
+  }
+}

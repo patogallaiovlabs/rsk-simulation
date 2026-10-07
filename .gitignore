@@ -3,3 +3,23 @@
 head-dumps
 rsk-rpc-exporter/node_modules/**/*
 nogit
+
+# Boton instance IPs — recreated per box, never committed
+docs/boton/hosts.env
+
+# Raw benchmark run output: ~630MB across ~1500 files (per-run block-breakdown logs,
+# k6 logs, resource samples). Regenerable only by re-running, but far too large for
+# git. The analysed deliverables under results/report-pack/ and results/sweep/*.csv
+# ARE tracked -- those are what the report is written from.
+results/local-ab/
+results/boton/
+results/k6/
+results/nmt/
+# local scratch
+findings.txt
+m2/*.jar
+# Seed databases and raw replay captures: multi-hundred-MB tarballs, rebuildable with
+# scripts/build-seed.sh (and build-seed-boton.sh). Never commit these.
+bench/**/*.tar.gz
+bench/**/*.txt.gz
+bench/**/*.log

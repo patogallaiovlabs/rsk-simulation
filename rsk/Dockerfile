@@ -10,6 +10,12 @@ WORKDIR /home/rsk
 COPY --chown=rsk:rsk repos/rskj ./
 COPY --chown=rsk:rsk rsk ./rsk
 
+# Locally built co.rsk:native SNAPSHOT, staged into the build context by
+# scripts/stage_native_snapshot.sh. rskj-core/build.gradle lists mavenLocal()
+# first, so this wins over the published releases on deps.rsklabs.io.
+# Empty (just .gitkeep) when no snapshot is staged -> plain no-op.
+COPY --chown=rsk:rsk m2 /home/rsk/.m2/repository
+
 RUN curl -sL https://secchannel.rsk.co/SUPPORT.asc | gpg --import && \
   gpg --verify --output SHA256SUMS SHA256SUMS.asc && \
   sha256sum --check SHA256SUMS && \

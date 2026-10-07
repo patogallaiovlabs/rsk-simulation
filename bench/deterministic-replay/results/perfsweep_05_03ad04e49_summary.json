@@ -1,0 +1,76 @@
+{
+  "gas_limit": 25000000,
+  "threshold": 0.9,
+  "qualifying_blocks": 1027,
+  "total_connect_records": 1158,
+  "gas_utilization_mean": 0.9816440153846153,
+  "per_block": {
+    "totalMs": {
+      "n": 1027,
+      "mean": 59.26484907497566,
+      "p50": 55.0,
+      "p95": 86.0
+    },
+    "executeMs": {
+      "n": 1027,
+      "mean": 30.569620253164558,
+      "p50": 28.0,
+      "p95": 45.0
+    },
+    "initialValidationMs": {
+      "n": 1027,
+      "mean": 19.9269717624148,
+      "p50": 20.0,
+      "p95": 24.0
+    },
+    "postExecuteValidationMs": {
+      "n": 1027,
+      "mean": 0.053554040895813046,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "stateRootRegisterMs": {
+      "n": 1027,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "saveReceiptsMs": {
+      "n": 1027,
+      "mean": 2.189873417721519,
+      "p50": 2.0,
+      "p95": 4.0
+    },
+    "onBestBlockMs": {
+      "n": 1027,
+      "mean": 1.6514118792599806,
+      "p50": 0.0,
+      "p95": 15.0
+    },
+    "onBlockMs": {
+      "n": 1027,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "switchChainMs": {
+      "n": 1027,
+      "mean": 1.8364167478091529,
+      "p50": 1.0,
+      "p95": 6.0
+    },
+    "txExecutionMs": {
+      "n": 1027,
+      "mean": 18.541382667964946,
+      "p50": 17.0,
+      "p95": 27.0
+    },
+    "statePersistMs": {
+      "n": 1027,
+      "mean": 11.518013631937682,
+      "p50": 10.0,
+      "p95": 20.0
+    }
+  },
+  "global": {}
+}
