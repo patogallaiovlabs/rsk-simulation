@@ -1,6 +1,6 @@
 # Commit sweep comparison (1158-block replay, mean ms per qualifying block)
 
-Range: commit 1 (`47a2eb63a`, feat: add block-connect timing breakdown instrumentation and JMX exposure) through tip (`b4a13038d`, feat: expose the preamble, post-execute-validation and process-best timings) on `ri_fixleak`, generated Tue Aug 25 17:24:02 -03 2026.
+Range: commit 1 (`47a2eb63a`, feat: add block-connect timing breakdown instrumentation and JMX exposure) through tip (`b4a13038d`, feat: expose the preamble, post-execute-validation and process-best timings) on `block-processing-perf`, generated Tue Aug 25 17:24:02 -03 2026.
 
 Per README guidance: `executeMs`/`txExecutionMs`/`statePersistMs` are the trustworthy steady-state metrics; `totalMs`/`initialValidationMs` are dominated by this harness's cold-cache signature verification and shouldn't be used to judge real block-processing changes.
 

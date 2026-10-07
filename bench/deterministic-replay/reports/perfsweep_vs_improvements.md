@@ -3,7 +3,7 @@
 All three: 3 independent 1158-block replay runs, all passed the sanity check.
 
 - **baseline** = commit 1 (`47a2eb63a`) — instrumentation only
-- **full tip** = `ri_fixleak` tip (`b4a13038d`) — all 18 commits, improvements and regressions both included, in original order
+- **full tip** = `block-processing-perf` tip (`b4a13038d`) — all 18 commits, improvements and regressions both included, in original order
 - **improvements-only** = `ri_fixleak-improvements-only` — commit 1 + the 11 commits that individually measured as improvements + `35d600ebd` (required compile dependency, not a perf pick)
 
 ## Mean ± stdev across 3 runs (ms)

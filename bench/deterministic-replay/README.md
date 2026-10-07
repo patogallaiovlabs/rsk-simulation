@@ -272,7 +272,7 @@ miners, here's what was tried and what was learned:
 
 ## Current findings (as of 2026-08-13 — check git log for anything newer)
 
-Two real bugs were found and fixed in `repos/rskj` (uncommitted on branch `ri_fixleak` as
+Two real bugs were found and fixed in `repos/rskj` (uncommitted on branch `block-processing-perf` as
 of this writing — check `git -C repos/rskj status`/`git -C repos/rskj diff` for current
 state, this file will go stale):
 
@@ -478,7 +478,7 @@ Three changes, all landing on `saveMultiple()`'s hot path:
 All three are committed as commits 12-14 (see "Committed changes" below), tested
 (`co.rsk.trie.*`, `org.ethereum.datasource.*`, `org.ethereum.db.ReceiptStoreImplTest`,
 `co.rsk.db.*`, `BlockExecutorTest` — all pass except the one pre-existing, unrelated
-`RocksDbDataSourceTest.getWithException()` failure that also fails on a clean `ri_fixleak`
+`RocksDbDataSourceTest.getWithException()` failure that also fails on a clean `block-processing-perf`
 checkout). The bloom filter and `multiGet()` were split into separate commits (12 and 13)
 despite being measured together, same reasoning as commits 4/11 earlier — each is a
 logically distinct, independently revertable fix even when validated as a pair; commit 12's
@@ -495,16 +495,16 @@ the CPU-contention findings earlier in this document, just a different mechanism
 
 ## Committed changes
 
-The changes above are split into **18 commits** on `repos/rskj`'s `ri_fixleak` branch (local
+The changes above are split into **18 commits** on `repos/rskj`'s `block-processing-perf` branch (local
 only, not pushed), one per distinct fix/candidate so each can be reviewed, reverted, or
 cherry-picked independently. Hashes are current as of 2026-08-25, and the numbering is the
 same one used by the per-commit sweep below and by the `results/perfsweep_*` labels.
 
-> **Hashes move when the branch is refolded.** `ri_fixleak` has been rewritten twice — a
+> **Hashes move when the branch is refolded.** `block-processing-perf` has been rewritten twice — a
 > squash on 2026-08-21 and a fold on 2026-08-25 — so any hash quoted *elsewhere* in this
 > document may already be dead. Re-derive the list with
-> `git -C repos/rskj log --oneline 47a2eb63a~1..ri_fixleak` rather than trusting a hash
-> you read in prose. `master..ri_fixleak` also carries 16 older memory-leak/mining commits
+> `git -C repos/rskj log --oneline 47a2eb63a~1..block-processing-perf` rather than trusting a hash
+> you read in prose. `master..block-processing-perf` also carries 16 older memory-leak/mining commits
 > *below* commit 1; those predate this investigation and are not listed here (the newest of
 > them, `83552e44b` "fix: honor the addToCache flag in `IndexedBlockStore.getBlockByHash`",
 > is commit 1's parent).
@@ -632,7 +632,7 @@ against whatever the working tree happened to be at the time — never against a
 reproducible commit. To get a real fixed point, checked out commit 1 alone (at the time,
 `git checkout 2f2ff25d6` in `repos/rskj` — detached HEAD; that hash died in the 2026-08-21
 squash and became `094de32e0`, which in turn was superseded by the 2026-08-25 fold —
-**commit 1 on `ri_fixleak` is now `47a2eb63a`**, and `094de32e0` survives only as the base
+**commit 1 on `block-processing-perf` is now `47a2eb63a`**, and `094de32e0` survives only as the base
 of the `commit1-native` branch, which is what the runs in this section and the next were
 built from), which has *only* the replay instrumentation/`ConnectBlocks` flush fix and none
 of commits 2-18 (no bug fixes, no dedup optimizations, no candidates), rebuilt the image,

@@ -210,7 +210,7 @@ This is a hypothesis, not a conclusion: nothing in this report profiles CPU usag
 ### Project Implementation and Tests
 
 - [rsk-simulation](https://github.com/patogallaiovlabs/rsk-simulation) — the project used to run all the stress testing and monitoring behind this report: the Dockerized RSKj network, the k6 stress-test suite, and the Prometheus/Grafana/Loki monitoring stack used to capture the Native Memory Tracking and `cgroup` data cited throughout.
-- [RocksDbDataSource: bounded shared block cache](https://github.com/patogallaiovlabs/rskj/blob/ri_fixleak/rskj-core/src/main/java/org/ethereum/datasource/RocksDbDataSource.java#L400) — the actual code change behind the RocksDB fix documented in Implemented Solutions and Configuration Deep-Dive.
+- [RocksDbDataSource: bounded shared block cache](https://github.com/patogallaiovlabs/rskj/blob/block-processing-perf/rskj-core/src/main/java/org/ethereum/datasource/RocksDbDataSource.java#L400) — the actual code change behind the RocksDB fix documented in Implemented Solutions and Configuration Deep-Dive.
 - [rsk-simulation Dockerfile: jemalloc / `MALLOC_CONF` example](https://github.com/patogallaiovlabs/rsk-simulation/blob/master/rsk/Dockerfile) — a working example of wiring up the allocator change described in OS-Level Tunables.
 
 ### RocksDB Memory Management
