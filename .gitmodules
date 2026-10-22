@@ -12,3 +12,9 @@
 	path = repos/rskj-k6-tests
 	url = git@github.com:patogallaiovlabs/rskj-k6-tests.git
 	branch = main
+[submodule "repos/native"]
+	path = repos/native
+	url = https://github.com/rsksmart/native.git
+[submodule "perf-lab/database-seed"]
+	path = perf-lab/database-seed
+	url = git@github.com:patogallaiovlabs/rsk-database-seed.git
