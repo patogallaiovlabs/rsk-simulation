@@ -4,10 +4,10 @@
 	branch = master
 [submodule "repos/stats-backend"]
 	path = repos/stats-backend
-	url = git@github.com:patogallaiovlabs/stats-backend.git
+	url = https://github.com/rsksmart/stats-backend.git
 [submodule "repos/stats-agent"]
 	path = repos/stats-agent
-	url = git@github.com:patogallaiovlabs/stats-agent.git
+	url = https://github.com/rsksmart/stats-agent.git
 [submodule "repos/rskj-k6-tests"]
 	path = repos/rskj-k6-tests
 	url = git@github.com:patogallaiovlabs/rskj-k6-tests.git
