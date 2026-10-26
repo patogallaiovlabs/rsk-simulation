@@ -15,6 +15,3 @@
 [submodule "repos/native"]
 	path = repos/native
 	url = https://github.com/rsksmart/native.git
-[submodule "perf-lab/database-seed"]
-	path = perf-lab/database-seed
-	url = git@github.com:patogallaiovlabs/rsk-database-seed.git
